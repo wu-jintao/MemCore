@@ -1,0 +1,227 @@
+{
+  "status": "completed_public_development_local_proxy_not_official_aml",
+  "date": "2026-10-06",
+  "dataset": "longmemeval_s",
+  "split": "dev",
+  "questions": 60,
+  "model": "Qwen3-32B",
+  "model_revision": "9216db5781bf21249d130ec9da846c4624c16137",
+  "contract": {
+    "version": "public-free-answer-contract-proxy-v1",
+    "dataset": "longmemeval_s",
+    "source_url": "https://github.com/AML-memory/agent-memory-leaderboard/blob/1b8142bfe0f20f1c5218d6b554aa0012de34e504/data/longmemeval-s/pipeline.py",
+    "source_commit": "1b8142bfe0f20f1c5218d6b554aa0012de34e504",
+    "prompt_identity": "independent wording; not byte-identical upstream prompts",
+    "answer_message_structure": "one user message; retrieved context fallback for first speaker",
+    "question_date_included": false,
+    "grading": "binary JSON label; special time/list/preference rules",
+    "local_parser_difference": "strict sole uppercase label; no surrounding text or extra fields",
+    "production_models_confirmed": false,
+    "production_tokenizer_budget_mapping_confirmed": false
+  },
+  "frozen_tools": {
+    "eval_calibrate.py": "caa38e1c44bf13507b5a72bd521420bae5d98442ebbc3ac46a130a686dfe144a",
+    "eval_answer.py": "10eeaf69b9613637ce2b250e4863bbdcd91e441ef26ab13d6a7886d0ff20bbfd",
+    "eval_contracts.py": "6d0fd4d2072c2109ea695913a0a9565bc00b481ffec5e9d147894450d13bcd6e"
+  },
+  "fresh_matched_comparison": {
+    "metrics": {
+      "baseline": {
+        "denominator": 60,
+        "correct": 41,
+        "accuracy_including_failures": 0.6833333333333333,
+        "failed_questions": 0,
+        "status_counts": {
+          "ok": 60
+        }
+      },
+      "candidate": {
+        "denominator": 60,
+        "correct": 43,
+        "accuracy_including_failures": 0.7166666666666667,
+        "failed_questions": 0,
+        "status_counts": {
+          "ok": 60
+        }
+      },
+      "paired": {
+        "denominator": 60,
+        "candidate_gains_including_failures": 5,
+        "candidate_losses_including_failures": 3,
+        "both_judged_successfully": 60
+      }
+    },
+    "usage": {
+      "attempted_requests": 240,
+      "usage_reported_requests": 240,
+      "prompt_tokens": 3820206,
+      "completion_tokens": 6087,
+      "stopped_after_estimate_excess": false
+    },
+    "elapsed_seconds": 861.7485492350534,
+    "all_inputs_and_tools_unchanged": true,
+    "tokenizer_files_unchanged": true,
+    "answer_rules_sha256": "10770d10d12ac7927988df24a37b5daedc60c07c29e548d2aef6183c6c7c4132",
+    "judge_rules_sha256": "cbf6149c07fac1b0ac9821e262c74ed23d4a05269a46ef90e0f005ee6501e7f5",
+    "private_raw_records_sha256": "ea86b2b4f289e8ece246de7c10aa5fa9b734fac75c67b83a05638471dc891539"
+  },
+  "packing": {
+    "memory_tokens": 32000,
+    "input_tokens": 64000,
+    "context_tokens": 65536,
+    "chat_reserve": 64,
+    "tokenizer": {
+      "kind": "huggingface_local",
+      "files_sha256": {
+        "config.json": "97e295b63283935788fac5e4f8860862a56d4089538cafc93f0431f2ebe483bb",
+        "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+        "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+        "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+      },
+      "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "package_versions": {
+        "transformers": "4.57.6",
+        "tokenizers": "0.22.2"
+      },
+      "local_files_only": true,
+      "trust_remote_code": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "rule": "Ordered complete item prefix; identical item bodies; independent single-user-message prompt",
+    "question_date_included": false
+  },
+  "historical_rejudge": {
+    "metrics": {
+      "baseline": {
+        "denominator": 60,
+        "correct": 37,
+        "accuracy_including_failures": 0.6166666666666667,
+        "failed_questions": 1,
+        "status_counts": {
+          "ok": 59,
+          "historical_answer_error": 1
+        }
+      },
+      "candidate": {
+        "denominator": 60,
+        "correct": 45,
+        "accuracy_including_failures": 0.75,
+        "failed_questions": 0,
+        "status_counts": {
+          "ok": 60
+        }
+      },
+      "paired": {
+        "denominator": 60,
+        "candidate_gains_including_failures": 10,
+        "candidate_losses_including_failures": 2,
+        "both_judged_successfully": 59
+      }
+    },
+    "original_v3_metrics": {
+      "baseline": {
+        "denominator": 60,
+        "correct": 36,
+        "accuracy_including_failures": 0.6,
+        "failed_questions": 1,
+        "status_counts": {
+          "ok": 59,
+          "answer_error": 1
+        }
+      },
+      "candidate": {
+        "denominator": 60,
+        "correct": 41,
+        "accuracy_including_failures": 0.6833333333333333,
+        "failed_questions": 0,
+        "status_counts": {
+          "ok": 60
+        }
+      },
+      "paired": {
+        "denominator": 60,
+        "candidate_gains_including_failures": 7,
+        "candidate_losses_including_failures": 2,
+        "both_judged_successfully": 59
+      }
+    },
+    "answer_requests": 0,
+    "judge_requests": 119,
+    "all_119_answer_bytes_preserved": true,
+    "grade_flips": {
+      "baseline": 1,
+      "candidate": 4,
+      "all_preference": true
+    },
+    "interpretation": "Scoring calibration only, not a memory implementation improvement. Original v3 scores/raw/source are preserved."
+  },
+  "fresh_pilot": {
+    "baseline": {
+      "denominator": 5,
+      "correct": 3,
+      "accuracy_including_failures": 0.6,
+      "failed_questions": 0,
+      "status_counts": {
+        "ok": 5
+      }
+    },
+    "candidate": {
+      "denominator": 5,
+      "correct": 4,
+      "accuracy_including_failures": 0.8,
+      "failed_questions": 0,
+      "status_counts": {
+        "ok": 5
+      }
+    },
+    "paired": {
+      "denominator": 5,
+      "candidate_gains_including_failures": 1,
+      "candidate_losses_including_failures": 0,
+      "both_judged_successfully": 5
+    }
+  },
+  "actual_paid_api_requests": 0,
+  "api_fee_usd": 0,
+  "compute_cost_accounted": false,
+  "promoted_to_public_service": false,
+  "limitations": [
+    "Reused development questions; not independent validation.",
+    "Independently worded public rules; production models, packing and tokenizer remain unconfirmed.",
+    "New fresh baseline and candidate must be compared within their profile; old v3 and rejudge values are not implementation gains.",
+    "Same Qwen family answers and grades. Full denominator retains failures.",
+    "No official Smoke or Full has been launched."
+  ],
+  "private_summary_sha256": {
+    "fresh": "b21e3040bc19d5fdf8f8654e314749daa166a7afafa146384b27d68d8104e82c",
+    "rejudge": "000c1ac277c7f9c52042862e3a4231117c2a8f553874f66fa608e88e479e4d3a"
+  },
+  "independent_audit": {
+    "status": "passed",
+    "all_answer_and_judge_messages_reconstructed": 240,
+    "exact_reported_hf_prompt_counts": 240,
+    "complete_item_prefix_stopping_boundaries": 120,
+    "summary_sha256": "b8b94dccf113ec60edda69ae0e4ff518c6bbb86b1dfcf74201aa2008734c8450",
+    "model_calls": 0
+  },
+  "diagnostics": {
+    "candidate_failed_correctness_questions": 17,
+    "annotated_source_coverage": {
+      "all_selected": 14,
+      "full_pool_contains_but_budget_cutoff": 1,
+      "full_top100_missing_some_native_turns": 2
+    },
+    "candidate_gains": {
+      "coverage_improved": 3,
+      "both_source_complete": 2
+    },
+    "verified_event_attribution_failure": "Assistant description and user future intention were treated as a completed user activity.",
+    "strong_judge_doubt_in_one_baseline_case": true,
+    "scores_manually_changed": false,
+    "audit_sha256": "527ea07a9740f0fdd4f52efc16b939cbdf066529077a24cd4caff4172a4f814f",
+    "limitation": "Full annotated-turn coverage does not guarantee all unannotated necessary facts or establish causality."
+  }
+}
