@@ -1,0 +1,33 @@
+[Unit]
+Description=AML participant memory Add/Search API
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/srv/aml-data/db
+
+[Service]
+Type=simple
+User=aml-memory
+Group=aml-memory
+WorkingDirectory=/opt/aml-memory/app
+EnvironmentFile=/etc/aml-memory/runtime.env
+Environment=PYTHONUNBUFFERED=1
+Environment=HF_HUB_OFFLINE=1
+Environment=TOKENIZERS_PARALLELISM=false
+Environment=OMP_NUM_THREADS=2
+Environment=MKL_NUM_THREADS=2
+ExecStart=/opt/aml-memory/venv/bin/python /opt/aml-memory/app/server.py --host 127.0.0.1 --port 8080 --db /srv/aml-data/db/memory.sqlite3
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=60
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/aml-data/db /srv/aml-data/cache
+LimitNOFILE=65536
+TasksMax=256
+MemoryMax=12G
+
+[Install]
+WantedBy=multi-user.target
