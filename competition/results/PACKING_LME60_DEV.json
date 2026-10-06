@@ -1,0 +1,270 @@
+{
+  "status": "executed_public_dev_proxy_not_official_aml",
+  "version": "public-dev-answer-judge-proxy-v3",
+  "evaluation_id": "20261006T084623Z-answer-proxy-d4d618f4",
+  "dataset": "longmemeval_s",
+  "split": "dev",
+  "selection": "First matching queries in fixed prepared dev file order, without label or score selection",
+  "selected_query_ids_sha256": "8b5a3be190367d5aeda27bf071b34fea12cb5a88846be0bb856c4c5821ffbbaf",
+  "metrics": {
+    "baseline": {
+      "denominator": 60,
+      "correct": 41,
+      "accuracy_including_failures": 0.6833333333333333,
+      "failed_questions": 0,
+      "status_counts": {
+        "ok": 60
+      }
+    },
+    "candidate": {
+      "denominator": 60,
+      "correct": 36,
+      "accuracy_including_failures": 0.6,
+      "failed_questions": 0,
+      "status_counts": {
+        "ok": 60
+      }
+    },
+    "paired": {
+      "denominator": 60,
+      "candidate_gains_including_failures": 3,
+      "candidate_losses_including_failures": 8,
+      "both_judged_successfully": 60
+    }
+  },
+  "models": {
+    "answer": "aml-qwen3-32b",
+    "judge": "aml-qwen3-32b",
+    "endpoint": "http://127.0.0.1:18080/v1/chat/completions",
+    "temperature": 0,
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "request_profile": "local_vllm"
+  },
+  "packing": {
+    "encoding": "hf-local-chat-template",
+    "memory_token_limit": 32000,
+    "total_input_token_limit": 64000,
+    "context_token_limit": 65536,
+    "chat_format_token_reserve": 64,
+    "answer_output_token_cap": 512,
+    "judge_output_token_cap": 256,
+    "rule": "Exact complete returned item prefix in original order; no trimming, skipping, or source reconstruction",
+    "question_and_options": "Only public query/options and verified LongMemEval public question_date; no label answer/category/evidence in Answer",
+    "reference": "Reference answer only in Judge; answer/category/evidence labels never enter Answer",
+    "tokenizer": {
+      "kind": "huggingface_local",
+      "files_sha256": {
+        "config.json": "97e295b63283935788fac5e4f8860862a56d4089538cafc93f0431f2ebe483bb",
+        "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+        "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+        "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+      },
+      "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "package_versions": {
+        "transformers": "4.57.6",
+        "tokenizers": "0.22.2"
+      },
+      "local_files_only": true,
+      "trust_remote_code": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "input_count": "Actual local model chat template plus reserve",
+    "public_question_metadata": {
+      "question_date_required": true,
+      "copied_field_whitelist": [
+        "question_date"
+      ],
+      "source": "Original public LongMemEval question_date located in prepared gold by eval_prepare; copied only after prepared-file SHA verification",
+      "included_in": [
+        "Answer question_data",
+        "Judge question_data"
+      ],
+      "validation": "YYYY/MM/DD (Mon) HH:MM; valid calendar/time and matching weekday; required for LongMemEval",
+      "timezone": "Original source does not specify timezone; none inferred",
+      "copied_count": 60,
+      "metadata_sha256": "070e9300bd0dfabf8ed9bd2012de8616e1d266242a1b9816cae77a3def1fd299"
+    }
+  },
+  "source_runs": [
+    {
+      "run_id": "20261005T180918Z-rerank-b9e09627",
+      "ingestion_run_id": "20261005T132713Z-ce592f8e",
+      "summary_sha256": "423ca15dcf66d1d3cf4231794059dffe876ea1e4b71bfa73228a89a5195695d3",
+      "retrieval_sha256": "27ca078454f4456b88cd3702633e6f8e0538e851bbc0998ae96e6b3598e775a0",
+      "source_code_sha256": {
+        "eval_research.py": "5a163c3f93a2a65461f3e4b8090934fba78eb0b36122ee3501785568aef7fbc3",
+        "eval_prepare.py": "61989dc2897f8c4c97e10ced3c6da75d11019074e3c92e8907b980c1cbd39ed2",
+        "eval_retrieval.py": "02dec9d3f77898aa6f09a8297c55b0dc03e91c0f46a6c4ba40e0ea32a791c3e8",
+        "eval_audit.py": "53549ce0e9cb27b1d7bde921236d5bddcffa10d77935a32a2c7453129e2c384c",
+        "server.py_at_start": "319e263b05cb775873f3d300b6f5a47fae43fc98f6886defb2886173d7e6bdd6",
+        "server.py_at_end": "319e263b05cb775873f3d300b6f5a47fae43fc98f6886defb2886173d7e6bdd6",
+        "semantic.py": "00d18e0e4d96d383b5cc6ff0302f17e3d97d4afe26b1d9658ca6d6e128179a4f"
+      },
+      "source_mapping_version": "session-occurrence-v2",
+      "service_whole_item_character_cap": 500000,
+      "ingestion_database_sha256_declared_not_reopened": "20545cdeda67ea3adf9f8656692daf1f4b38f023849c0a185d171da8d39dfb98",
+      "ingestion_summary_sha256": "6f84ec49c381d496854604c74edcaff92fec4eaa110b862bd260762d6c7872a8",
+      "ingestion_retrieval_sha256": "9674ff9d5a66a2045711a0c0f0a9caf72ed80d4aadb117a767343982c5bedadc"
+    },
+    {
+      "run_id": "20261005T195357Z-rerank-bc2da02b",
+      "ingestion_run_id": "20261005T132713Z-ce592f8e",
+      "summary_sha256": "8e9931f3cd7f34376c1b044288d0ac97f2015a20ce1878255afc7c3b110b855e",
+      "retrieval_sha256": "32f00bca819de5090727b8efbbbaf36c67f309a271be1847cfdb43ebfd8c11d7",
+      "source_code_sha256": {
+        "eval_research.py": "428f194eb061d05c07aa633d52496d9c573e69fc2332e65f38f1fd3c9a317aee",
+        "eval_prepare.py": "61989dc2897f8c4c97e10ced3c6da75d11019074e3c92e8907b980c1cbd39ed2",
+        "eval_retrieval.py": "02dec9d3f77898aa6f09a8297c55b0dc03e91c0f46a6c4ba40e0ea32a791c3e8",
+        "eval_audit.py": "53549ce0e9cb27b1d7bde921236d5bddcffa10d77935a32a2c7453129e2c384c",
+        "server.py_at_start": "7f845d989e47085ffc03dd4aefdb5e5901086d7487429daf7c9c1e516edc9b4c",
+        "server.py_at_end": "7f845d989e47085ffc03dd4aefdb5e5901086d7487429daf7c9c1e516edc9b4c",
+        "semantic.py": "00d18e0e4d96d383b5cc6ff0302f17e3d97d4afe26b1d9658ca6d6e128179a4f"
+      },
+      "source_mapping_version": "session-occurrence-v2",
+      "service_whole_item_character_cap": 500000,
+      "ingestion_database_sha256_declared_not_reopened": "20545cdeda67ea3adf9f8656692daf1f4b38f023849c0a185d171da8d39dfb98",
+      "ingestion_summary_sha256": "6f84ec49c381d496854604c74edcaff92fec4eaa110b862bd260762d6c7872a8",
+      "ingestion_retrieval_sha256": "9674ff9d5a66a2045711a0c0f0a9caf72ed80d4aadb117a767343982c5bedadc"
+    }
+  ],
+  "prepared_file_sha256": {
+    "histories": "0153012da17258b48b4a8e093311610dfc542238ab3d54ef23003a77a394914e",
+    "queries": "eefbb28dd043d77f71b330e75e58591799f913a1c486e4b64dc9e4e6252e0f18",
+    "gold": "1f470aa97e9d760ca2f14b305d5ed681e8aeff90e34b09fbd437a8848eb23d17"
+  },
+  "usage_and_cost": {
+    "attempted_requests": 240,
+    "usage_reported_requests": 240,
+    "usage_unknown_requests": 0,
+    "reported_prompt_tokens": 3812599,
+    "reported_completion_tokens": 11997,
+    "accounted_usd_reported_plus_unknown_reservations": 0.0,
+    "stopped_after_proxy_estimate_excess": false,
+    "known_reported_token_cost_usd": 0.0,
+    "actual_paid_api_requests": 0,
+    "api_fee_usd": 0,
+    "compute_cost_accounted": false
+  },
+  "date": "2026-10-06",
+  "questions": 60,
+  "by_category": {
+    "knowledge-update": {
+      "questions": 11,
+      "baseline_correct": 8,
+      "candidate_correct": 10,
+      "gains": 2,
+      "losses": 0
+    },
+    "multi-session": {
+      "questions": 15,
+      "baseline_correct": 9,
+      "candidate_correct": 5,
+      "gains": 0,
+      "losses": 4
+    },
+    "single-session-assistant": {
+      "questions": 5,
+      "baseline_correct": 4,
+      "candidate_correct": 5,
+      "gains": 1,
+      "losses": 0
+    },
+    "single-session-preference": {
+      "questions": 4,
+      "baseline_correct": 0,
+      "candidate_correct": 0,
+      "gains": 0,
+      "losses": 0
+    },
+    "single-session-user": {
+      "questions": 8,
+      "baseline_correct": 8,
+      "candidate_correct": 8,
+      "gains": 0,
+      "losses": 0
+    },
+    "temporal-reasoning": {
+      "questions": 17,
+      "baseline_correct": 12,
+      "candidate_correct": 8,
+      "gains": 0,
+      "losses": 4
+    }
+  },
+  "elapsed_seconds": 1129.4979238449596,
+  "comparison": {
+    "baseline": "Frozen old evidence assembly plus BGE; fresh answers in this run",
+    "candidate": "Emitted-source evidence grouping plus identical BGE",
+    "only_memory_implementation_change": "Source-preserving assembly; same top100 anchors, original index, retrieval models and budgets",
+    "candidate_research_server_sha256": "7f845d989e47085ffc03dd4aefdb5e5901086d7487429daf7c9c1e516edc9b4c"
+  },
+  "integrity": {
+    "adapter_sha256": "10eeaf69b9613637ce2b250e4863bbdcd91e441ef26ab13d6a7886d0ff20bbfd",
+    "model_manifest_sha256": "087ddf48614aff59996b4e2c84a2faf6c5896ecb5ce79157b21b3ec75906a089",
+    "server_state_sha256": "4b67186e2c26f323d8ade35610d1f667a754da17ee0038eee4b700776d0c4082",
+    "input_pack_manifest_sha256": "daa446919229c0daf91a55bea59987245c1f2c98d29af885bb7ace17c7b064ff",
+    "private_summary_sha256": "111702a7c26c5701e815b0c83364cbf9f058330ed921db7c5543c56df0918eec",
+    "private_raw_records_sha256": "c5237468b6f231402aff6ed9d04ae4abdd79a912031c24d22b900ca4e57ef101",
+    "private_runtime_sha256": "c129fbbaf14addc9dc100e7e8c9bb83a328545e4d6fe6f9f46c5b7f3c9d31223",
+    "all_inputs_unchanged": true,
+    "matched_unique_rows": 120
+  },
+  "limitations": [
+    "Official AML Answer/Judge models, prompt, packing and scoring are undisclosed; this proxy cannot predict official Overall or guarantee a win.",
+    "This first version covers only selected LoCoMo and LongMemEval_s free-answer dev questions; it does not represent all seven capability families or PersonaMem/CLBench/BEAM/rubric tasks.",
+    "The budget covers our content tokenizer plus a declared chat reserve, not a verified production prompt. Whole-item prefixes may differ from official final-item truncation.",
+    "Cost is an uncached token-price estimate, not a provider billing guarantee; unknown usage reserves full estimated cost. Any reported token excess stops further calls.",
+    "Only selected public dev questions are compared; failures stay in the matched denominator. Dry-run reports no answer accuracy.",
+    "Same proxy model may answer and judge; judge bias and correlated questions limit interpretation. No automatic retries or resume are performed.",
+    "Original public question_date is supplied to both Answer and Judge for relative-time context; its timezone and official AML serialization are unverified. Earlier proxy runs without this date are not directly comparable.",
+    "Public dev proxy only; E5/Qwen research stack is not the specified Academic submission stack.",
+    "Temperature-zero generation can vary; use this matched baseline rather than subtracting an earlier run score.",
+    "Same-model judging and post-hoc diagnosis do not justify manually changing primary scores.",
+    "No cloud memory deployment or official Smoke/Full was changed or started."
+  ],
+  "independent_audit": {
+    "aggregate_sha256": "b8dd9533e55d23209ce082287e0a0680ba94608c386cb755fdac6ef41459f514",
+    "checks": {
+      "all9_input_files_sha_match": true,
+      "raw_and_manifest_sha_match": true,
+      "fixed_first60_selection": true,
+      "frozen_adapter_sha_match": true,
+      "dates_same_in_answer_judge": true,
+      "answer_label_fields_excluded": true,
+      "all120_message_hashes_reconstructed_and_packing_matches_verified_hf_cache": true
+    },
+    "source_scope": {
+      "prefixes_checked": 120,
+      "source_byte_or_scope_errors": 0,
+      "duplicate_source_occurrences": 0,
+      "all11_gains_losses_both_have_complete_strict_annotated_sources": true,
+      "public_question_date_in_both_stages": true,
+      "label_fields_in_answer": false
+    },
+    "evidence_proxy": {
+      "baseline": {
+        "complete_questions": 57,
+        "strict_annotated_hits": 122,
+        "annotated_turns": 126
+      },
+      "candidate": {
+        "complete_questions": 58,
+        "strict_annotated_hits": 123,
+        "annotated_turns": 126
+      }
+    },
+    "loss_diagnostic": {
+      "clear_core_errors": 7,
+      "mixed_response_with_inconsistent_judge_reason": 1,
+      "source_absence_in_actual_prefix": 0,
+      "confirmed_framework_causal_defects": 0
+    },
+    "scoring": "Primary metrics and raw scores unchanged;diagnosis is separate."
+  },
+  "candidate_selection": "Not selected as default;root reserved mode keeps old assembly,emitted remains optional research."
+}
