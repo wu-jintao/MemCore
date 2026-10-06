@@ -1,0 +1,105 @@
+{
+  "status": "completed_public_dev_evidence_ordering_proxy",
+  "date": "2026-10-06",
+  "dataset": "longmemeval_s",
+  "split": "dev",
+  "questions": 60,
+  "baseline": "Frozen BM25/E5-small equal RRF with adjacent original evidence, cap500k",
+  "candidate": "Same exact returned candidate IDs/text, reordered with BGE-reranker-v2-m3",
+  "candidate_content_set_unchanged": true,
+  "reranker": {
+    "model": "BAAI/bge-reranker-v2-m3",
+    "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+    "dtype": "float32",
+    "device": "cuda:0",
+    "batch_size": 32,
+    "max_pair_tokens": 512,
+    "query_window": 128,
+    "overlap": 64,
+    "max_pairs_per_item": 4096,
+    "aggregate": "max over every query/document window pair",
+    "tie_break": "original candidate rank",
+    "tf32": false,
+    "attention": "eager",
+    "text": "original query plus exact returned item content including source/adjacency wrappers"
+  },
+  "tokenizer": "o200k_base/tiktoken0.14.0",
+  "instruction_reserve_tokens": 2048,
+  "metrics": [
+    {
+      "memory_token_budget": 16000,
+      "baseline_full_turn_recall_all": 0.8,
+      "reranked_full_turn_recall_all": 0.85,
+      "baseline_macro_turn_recall": 0.8838888888888888,
+      "reranked_macro_turn_recall": 0.9427777777777778,
+      "paired": {
+        "gained_questions": 5,
+        "lost_questions": 2
+      }
+    },
+    {
+      "memory_token_budget": 32000,
+      "baseline_full_turn_recall_all": 0.85,
+      "reranked_full_turn_recall_all": 0.95,
+      "baseline_macro_turn_recall": 0.9425,
+      "reranked_macro_turn_recall": 0.98,
+      "paired": {
+        "gained_questions": 7,
+        "lost_questions": 1
+      }
+    },
+    {
+      "memory_token_budget": 64000,
+      "baseline_full_turn_recall_all": 0.95,
+      "reranked_full_turn_recall_all": 0.9666666666666667,
+      "baseline_macro_turn_recall": 0.9822222222222222,
+      "reranked_macro_turn_recall": 0.9855555555555555,
+      "paired": {
+        "gained_questions": 1,
+        "lost_questions": 0
+      }
+    },
+    {
+      "memory_token_budget": 117760,
+      "baseline_full_turn_recall_all": 0.9666666666666667,
+      "reranked_full_turn_recall_all": 0.9666666666666667,
+      "baseline_macro_turn_recall": 0.9855555555555555,
+      "reranked_macro_turn_recall": 0.9855555555555555,
+      "paired": {
+        "gained_questions": 0,
+        "lost_questions": 0
+      }
+    }
+  ],
+  "full_evidence_recall_all_both": 0.9666666666666667,
+  "model_load_seconds": 7.927473192976322,
+  "rerank_seconds": 213.62179799302248,
+  "reranker_pairs": 14532,
+  "peak_cuda_allocated_bytes": 4386461184,
+  "model_manifest_sha256": "880cb22f8554e1d5205dd35d3596bf0e4e1e99b836673e7abc1adcd3a0cfe38d",
+  "source_input_sha256": "24bf5366cffc014ee3e1787696a5e171f9a2119d5b93b57aba72a4d284058060",
+  "source_retrieval_sha256": "0a6114d7f1285900ac2ee90f668af39ab6daa52528f12a9fbfa02dd86ab20c0d",
+  "helper_sha256": "2293f8fce502660318716a795c5cbcb0b96dd4df9baadf46288c7f821fb2807b",
+  "package_versions": {
+    "torch": "2.9.1",
+    "transformers": "4.57.6",
+    "huggingface-hub": "0.36.2",
+    "tokenizers": "0.22.2",
+    "safetensors": "0.8.0",
+    "numpy": "2.3.5"
+  },
+  "gold_available_to_ranker": false,
+  "add_requests": 0,
+  "paid_api_requests": 0,
+  "answer_accuracy": null,
+  "official_score": null,
+  "production_deployed": false,
+  "limitations": [
+    "Fixed public development set; evidence ordering is not final answer accuracy.",
+    "Five gains and two losses at16k; do not hide regressions.",
+    "At117760 input proxy all evidence fits and complete coverage is unchanged; ranking may affect answer quality but was not measured.",
+    "GPU study is not4CPU cloud capacity.",
+    "E5 is a research baseline; current Academic rule requires text-embedding-v4 for the final embedding method."
+  ],
+  "rule_url": "https://agentmemoryleaderboard.ai/competition/"
+}
