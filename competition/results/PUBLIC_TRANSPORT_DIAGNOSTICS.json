@@ -1,0 +1,255 @@
+{
+  "status": "partial_deadline_repairs_connected_network_gates_not_passed",
+  "date": "2026-10-06",
+  "official_evaluation": false,
+  "official_score": null,
+  "company_vpn_connected": true,
+  "valid_disconnected_comparison": false,
+  "method_or_models_changed": false,
+  "read_header_changed": false,
+  "body_read_idle_seconds": 1800,
+  "write_idle_seconds": 1800,
+  "body_delay_control": {
+    "delay_seconds": 65,
+    "body_bytes": 14138,
+    "default_status": 504,
+    "default_response_seconds": 60.00137545100006,
+    "default_complete_adds": 0,
+    "explicit_status": 200,
+    "explicit_response_seconds": 65.00356366399501,
+    "explicit_complete_adds": 1,
+    "complete_length_sha_json_verified": true,
+    "own_fixture_cleanup_passed": true,
+    "report_sha256": "cacbcc75b93ada9723c39aeac93fb6bd2aee2c4ef49c13bc0ea98b3aba1672ae"
+  },
+  "slow_reader_control": {
+    "pause_seconds": 65,
+    "body_bytes": 33554432,
+    "default_header_status": 200,
+    "default_received_bytes": 1619774,
+    "default_complete": false,
+    "explicit_header_status": 200,
+    "explicit_received_bytes": 33554432,
+    "explicit_complete": true,
+    "explicit_response_seconds": 65.08815513299487,
+    "complete_sha_verified": true,
+    "own_fixture_cleanup_passed": true,
+    "report_sha256": "4c0ca571cffd458076c1d898ee1d35dea1ad2b21e55b488295e9a981c9fe5f83"
+  },
+  "activation": {
+    "body_report_sha256": "576eecb41f5ecf1d07f7b5011691d79f350789d5dd06726699a5cc0555a59a26",
+    "write_report_sha256": "bf4c2442bb67f1722c371e4d714d37ce61c6e3946b5e084bd0755c4f28052e56",
+    "only_selected_idle_fields_changed": true,
+    "validate_reload_admin_adapt_passed": true,
+    "services_not_restarted": true,
+    "health_status": 200,
+    "after_caddyfile_sha256": "f60bbf6003cdfdb91ce89d59e8dbfdb8b9daae7951524659514a76f19dd82224",
+    "backups_created": true,
+    "rollback_required": false
+  },
+  "post_body_repair_before_write_repair_16_client": {
+    "identity": {
+      "exit_code": 1,
+      "elapsed_seconds": 354.9962959999975,
+      "aborted_phase": null,
+      "public_health": true,
+      "unauthenticated_post_rejected": true,
+      "add": {
+        "requests": 16,
+        "failed": 0,
+        "p50_seconds": 5.941296561999479,
+        "p95_seconds": 14.51171566699486,
+        "max_response_bytes": 143,
+        "max_wire_response_bytes": 143,
+        "response_encodings": [
+          "identity"
+        ],
+        "errors": []
+      },
+      "immediate_visibility": {
+        "requests": 16,
+        "failed": 0,
+        "p50_seconds": 5.11248631250055,
+        "p95_seconds": 13.273350209005002,
+        "max_response_bytes": 14011,
+        "max_wire_response_bytes": 14011,
+        "response_encodings": [
+          "identity"
+        ],
+        "errors": []
+      },
+      "search": {
+        "requests": 32,
+        "failed": 4,
+        "p50_seconds": 44.35227427149948,
+        "p95_seconds": 120.10747974999686,
+        "max_response_bytes": 136359,
+        "max_wire_response_bytes": 136359,
+        "response_encodings": [
+          "identity",
+          "unknown"
+        ],
+        "errors": [
+          "RemoteDisconnected",
+          "IncompleteRead",
+          "TimeoutError",
+          "TimeoutError"
+        ]
+      },
+      "identical_retry": {
+        "requests": 32,
+        "failed": 2,
+        "p50_seconds": 2.7797654999994847,
+        "p95_seconds": 120.26296837499831,
+        "max_response_bytes": 141,
+        "max_wire_response_bytes": 141,
+        "response_encodings": [
+          "identity",
+          "unknown"
+        ],
+        "errors": [
+          "TimeoutError",
+          "TimeoutError"
+        ]
+      },
+      "conflicting_retry_rejected": true,
+      "complete_user_isolation": true,
+      "raw_sha256": "ef87976f85941f56068f088a66abd9008175bc4e3742b7be112b2d31dc87fa75"
+    },
+    "gzip": {
+      "exit_code": 2,
+      "elapsed_seconds": 140.7429367079967,
+      "aborted_phase": "add_visibility",
+      "public_health": true,
+      "unauthenticated_post_rejected": true,
+      "add": {
+        "requests": 16,
+        "failed": 1,
+        "p50_seconds": 7.046508416999131,
+        "p95_seconds": 124.21999741699983,
+        "max_response_bytes": 143,
+        "max_wire_response_bytes": 143,
+        "response_encodings": [
+          "identity",
+          "unknown"
+        ],
+        "errors": [
+          "TimeoutError"
+        ]
+      },
+      "immediate_visibility": {
+        "requests": 16,
+        "failed": 2,
+        "p50_seconds": 4.3865975414992135,
+        "p95_seconds": 120.40233691700269,
+        "max_response_bytes": 13983,
+        "max_wire_response_bytes": 1282,
+        "response_encodings": [
+          "gzip",
+          "unknown"
+        ],
+        "errors": [
+          "TimeoutError",
+          "ResponseVerificationError"
+        ]
+      },
+      "search": {
+        "requests": 0,
+        "failed": 0,
+        "p50_seconds": null,
+        "p95_seconds": null,
+        "max_response_bytes": 0,
+        "max_wire_response_bytes": 0,
+        "response_encodings": [],
+        "errors": []
+      },
+      "identical_retry": {
+        "requests": 0,
+        "failed": 0,
+        "p50_seconds": null,
+        "p95_seconds": null,
+        "max_response_bytes": 0,
+        "max_wire_response_bytes": 0,
+        "response_encodings": [],
+        "errors": []
+      },
+      "conflicting_retry_rejected": false,
+      "complete_user_isolation": false,
+      "raw_sha256": "b46d4668ea0653efb0bc77704ed7bafccb489d6f7c5bce25fcf4b473f5b25e7f"
+    }
+  },
+  "post_write_repair_same_corpus_low_concurrency": {
+    "existing_synthetic_messages": 320,
+    "planned_requests": 32,
+    "completed": 17,
+    "passed": 15,
+    "failed_completed": 2,
+    "incomplete": 15,
+    "outer_timeout_seconds": 600,
+    "outer_timeout_reached": true,
+    "runtime_seconds": 600.0112325000009,
+    "blocks": [
+      {
+        "concurrency": 1,
+        "kind": "search",
+        "planned_denominator": 8,
+        "completed": 8,
+        "passed": 7,
+        "failed_completed": 1,
+        "incomplete": 0,
+        "failed_or_incomplete": 1
+      },
+      {
+        "concurrency": 1,
+        "kind": "identical_retry",
+        "planned_denominator": 8,
+        "completed": 8,
+        "passed": 7,
+        "failed_completed": 1,
+        "incomplete": 0,
+        "failed_or_incomplete": 1
+      },
+      {
+        "concurrency": 4,
+        "kind": "search",
+        "planned_denominator": 8,
+        "completed": 1,
+        "passed": 1,
+        "failed_completed": 0,
+        "incomplete": 7,
+        "failed_or_incomplete": 7
+      },
+      {
+        "concurrency": 4,
+        "kind": "identical_retry",
+        "planned_denominator": 8,
+        "completed": 0,
+        "passed": 0,
+        "failed_completed": 0,
+        "incomplete": 8,
+        "failed_or_incomplete": 8
+      }
+    ],
+    "fresh_add_gate": false,
+    "full_capacity_gate": false,
+    "checkpoint_preserved": true,
+    "raw_checkpoint_sha256": "c750839124810377063b7ec8dfc5f21e4dfeb30ed24a889b40e49bfbba392c28",
+    "runtime_sha256": "9d51f8d8912e78e911e5ed7a620e34b6176c26a1d3273eefbd8a25c98c737aaa"
+  },
+  "limits": [
+    "Corrected premature frontend read/write idle cutoffs, not the underlying cause of packet or TLS stalls.",
+    "Earlier identity/gzip 16-client gates failed; complete updated 16-client validation has not passed.",
+    "Company-VPN connected client still has partial-body/connection failures at concurrency one. No causal VPN claim without a valid disconnected comparison.",
+    "A low-concurrency sample exhausted its predetermined600s budget; incomplete slots remain in the planned denominator.",
+    "HTTP200 and Caddy access duration zero do not prove complete receipt.",
+    "No official Smoke/Full or full-scale capacity proof; no source publication.",
+    "Public synthetic data only, no benchmark question/reference content in these network probes."
+  ],
+  "primary_sources": [
+    "https://github.com/caddyserver/caddy/blob/v2.11.7/modules/caddyhttp/app.go#L404-L415",
+    "https://github.com/caddyserver/caddy/blob/v2.11.7/modules/caddyhttp/idletimeout.go#L100-L168",
+    "https://github.com/caddyserver/caddy/blob/v2.11.7/caddyconfig/httpcaddyfile/serveroptions.go#L146-L155"
+  ],
+  "actual_paid_api_requests": 0,
+  "llm_requests": 0
+}
