@@ -1,0 +1,10 @@
+# Optional semantic environment. The standard-library lexical service does not
+# need these. Install CPU PyTorch from https://download.pytorch.org/whl/cpu first
+# on Linux; resolve and freeze the complete environment on the deployment host.
+# Tested locally on Python 3.12.14/macOS arm64, not a Linux capacity guarantee.
+sentence-transformers==6.1.0
+torch==2.14.1
+transformers==5.18.0
+tokenizers==0.23.2
+huggingface-hub==1.33.0
+numpy>=1.24,<3
