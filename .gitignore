@@ -1,0 +1,15 @@
+.local/
+__pycache__/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+.venv/
+*.pem
+*.key
+.env
+.env.*
+runtime.env
+competition/results/*private*
+competition/results/*/retrieval.jsonl
+*.log
+competition/PLAN.md
