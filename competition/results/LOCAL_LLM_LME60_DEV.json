@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-06",
+  "status": "completed_public_dev_answer_judge_proxy_not_official_aml",
+  "dataset": "longmemeval_s",
+  "split": "dev",
+  "selection": "First matching queries in fixed prepared dev file order, without label or score selection",
+  "selected_query_ids_sha256": "8b5a3be190367d5aeda27bf071b34fea12cb5a88846be0bb856c4c5821ffbbaf",
+  "questions": 60,
+  "metrics": {
+    "baseline": {
+      "denominator": 60,
+      "correct": 36,
+      "accuracy_including_failures": 0.6,
+      "failed_questions": 1,
+      "status_counts": {
+        "ok": 59,
+        "answer_error": 1
+      }
+    },
+    "candidate": {
+      "denominator": 60,
+      "correct": 41,
+      "accuracy_including_failures": 0.6833333333333333,
+      "failed_questions": 0,
+      "status_counts": {
+        "ok": 60
+      }
+    },
+    "paired": {
+      "denominator": 60,
+      "candidate_gains_including_failures": 7,
+      "candidate_losses_including_failures": 2,
+      "both_judged_successfully": 59
+    }
+  },
+  "both_successful_pair_diagnostic": {
+    "denominator": 59,
+    "baseline_correct": 36,
+    "candidate_correct": 41,
+    "gains": 7,
+    "losses": 2,
+    "purpose": "Separate diagnostic only; all failures remain in the primary 60-question denominator."
+  },
+  "failure_codes": {
+    "invalid_or_incomplete_completion": 1
+  },
+  "by_category": {
+    "knowledge-update": {
+      "questions": 11,
+      "baseline_correct": 10,
+      "candidate_correct": 9,
+      "gains": 0,
+      "losses": 1
+    },
+    "multi-session": {
+      "questions": 15,
+      "baseline_correct": 5,
+      "candidate_correct": 8,
+      "gains": 4,
+      "losses": 1
+    },
+    "single-session-assistant": {
+      "questions": 5,
+      "baseline_correct": 4,
+      "candidate_correct": 4,
+      "gains": 0,
+      "losses": 0
+    },
+    "single-session-preference": {
+      "questions": 4,
+      "baseline_correct": 0,
+      "candidate_correct": 0,
+      "gains": 0,
+      "losses": 0
+    },
+    "single-session-user": {
+      "questions": 8,
+      "baseline_correct": 8,
+      "candidate_correct": 8,
+      "gains": 0,
+      "losses": 0
+    },
+    "temporal-reasoning": {
+      "questions": 17,
+      "baseline_correct": 9,
+      "candidate_correct": 12,
+      "gains": 3,
+      "losses": 0
+    }
+  },
+  "elapsed_seconds": 1152.1541613090085,
+  "usage_and_cost": {
+    "attempted_requests": 239,
+    "usage_reported_requests": 239,
+    "usage_unknown_requests": 0,
+    "reported_prompt_tokens": 3813103,
+    "reported_completion_tokens": 12447,
+    "accounted_usd_reported_plus_unknown_reservations": 0.0,
+    "stopped_after_proxy_estimate_excess": false,
+    "known_reported_token_cost_usd": 0.0,
+    "actual_paid_api_requests": 0,
+    "api_fee_usd": 0,
+    "compute_cost_accounted": false
+  },
+  "model": {
+    "name": "Qwen/Qwen3-32B",
+    "served_alias": "aml-qwen3-32b",
+    "revision": "9216db5781bf21249d130ec9da846c4624c16137",
+    "official_model_files_verified": 26,
+    "weight_dtype": "BF16",
+    "answer_and_judge_same_model": true,
+    "temperature": 0,
+    "enable_thinking": false,
+    "total_context_tokens": 65536,
+    "rope": "YaRN factor 2; original model assets unchanged",
+    "tensor_parallel_gpus": 4,
+    "framework": "vLLM 0.14.1 / Transformers 4.57.6 / Torch 2.9.1"
+  },
+  "packing": {
+    "encoding": "hf-local-chat-template",
+    "memory_token_limit": 32000,
+    "total_input_token_limit": 64000,
+    "context_token_limit": 65536,
+    "chat_format_token_reserve": 64,
+    "answer_output_token_cap": 512,
+    "judge_output_token_cap": 256,
+    "rule": "Exact complete returned item prefix in original order; no trimming, skipping, or source reconstruction",
+    "question_and_options": "Only public query/options and verified LongMemEval public question_date; no label answer/category/evidence in Answer",
+    "reference": "Reference answer only in Judge; answer/category/evidence labels never enter Answer",
+    "tokenizer": {
+      "kind": "huggingface_local",
+      "files_sha256": {
+        "config.json": "97e295b63283935788fac5e4f8860862a56d4089538cafc93f0431f2ebe483bb",
+        "tokenizer_config.json": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+        "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+        "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5"
+      },
+      "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "package_versions": {
+        "transformers": "4.57.6",
+        "tokenizers": "0.22.2"
+      },
+      "local_files_only": true,
+      "trust_remote_code": false,
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      }
+    },
+    "input_count": "Actual local model chat template plus reserve",
+    "public_question_metadata": {
+      "question_date_required": true,
+      "copied_field_whitelist": [
+        "question_date"
+      ],
+      "source": "Original public LongMemEval question_date located in prepared gold by eval_prepare; copied only after prepared-file SHA verification",
+      "included_in": [
+        "Answer question_data",
+        "Judge question_data"
+      ],
+      "validation": "YYYY/MM/DD (Mon) HH:MM; valid calendar/time and matching weekday; required for LongMemEval",
+      "timezone": "Original source does not specify timezone; none inferred",
+      "copied_count": 60,
+      "metadata_sha256": "070e9300bd0dfabf8ed9bd2012de8616e1d266242a1b9816cae77a3def1fd299"
+    }
+  },
+  "source_runs": [
+    {
+      "run_id": "20261005T142027Z-searchonly-29c1ea40",
+      "ingestion_run_id": "20261005T132713Z-ce592f8e",
+      "summary_sha256": "170e4edbf96b0870393f8cd86fa0df2f7b85646f592cc0d9d6dc47c62fdecc69",
+      "retrieval_sha256": "0a6114d7f1285900ac2ee90f668af39ab6daa52528f12a9fbfa02dd86ab20c0d",
+      "source_code_sha256": {
+        "eval_research.py": "5a163c3f93a2a65461f3e4b8090934fba78eb0b36122ee3501785568aef7fbc3",
+        "eval_prepare.py": "61989dc2897f8c4c97e10ced3c6da75d11019074e3c92e8907b980c1cbd39ed2",
+        "eval_retrieval.py": "02dec9d3f77898aa6f09a8297c55b0dc03e91c0f46a6c4ba40e0ea32a791c3e8",
+        "eval_audit.py": "53549ce0e9cb27b1d7bde921236d5bddcffa10d77935a32a2c7453129e2c384c",
+        "server.py_at_start": "319e263b05cb775873f3d300b6f5a47fae43fc98f6886defb2886173d7e6bdd6",
+        "server.py_at_end": "319e263b05cb775873f3d300b6f5a47fae43fc98f6886defb2886173d7e6bdd6",
+        "semantic.py": "00d18e0e4d96d383b5cc6ff0302f17e3d97d4afe26b1d9658ca6d6e128179a4f"
+      },
+      "source_mapping_version": "session-occurrence-v2",
+      "service_whole_item_character_cap": 500000,
+      "ingestion_database_sha256_declared_not_reopened": "20545cdeda67ea3adf9f8656692daf1f4b38f023849c0a185d171da8d39dfb98",
+      "ingestion_summary_sha256": "6f84ec49c381d496854604c74edcaff92fec4eaa110b862bd260762d6c7872a8",
+      "ingestion_retrieval_sha256": "9674ff9d5a66a2045711a0c0f0a9caf72ed80d4aadb117a767343982c5bedadc"
+    },
+    {
+      "run_id": "20261005T180918Z-rerank-b9e09627",
+      "ingestion_run_id": "20261005T132713Z-ce592f8e",
+      "summary_sha256": "423ca15dcf66d1d3cf4231794059dffe876ea1e4b71bfa73228a89a5195695d3",
+      "retrieval_sha256": "27ca078454f4456b88cd3702633e6f8e0538e851bbc0998ae96e6b3598e775a0",
+      "source_code_sha256": {
+        "eval_research.py": "5a163c3f93a2a65461f3e4b8090934fba78eb0b36122ee3501785568aef7fbc3",
+        "eval_prepare.py": "61989dc2897f8c4c97e10ced3c6da75d11019074e3c92e8907b980c1cbd39ed2",
+        "eval_retrieval.py": "02dec9d3f77898aa6f09a8297c55b0dc03e91c0f46a6c4ba40e0ea32a791c3e8",
+        "eval_audit.py": "53549ce0e9cb27b1d7bde921236d5bddcffa10d77935a32a2c7453129e2c384c",
+        "server.py_at_start": "319e263b05cb775873f3d300b6f5a47fae43fc98f6886defb2886173d7e6bdd6",
+        "server.py_at_end": "319e263b05cb775873f3d300b6f5a47fae43fc98f6886defb2886173d7e6bdd6",
+        "semantic.py": "00d18e0e4d96d383b5cc6ff0302f17e3d97d4afe26b1d9658ca6d6e128179a4f"
+      },
+      "source_mapping_version": "session-occurrence-v2",
+      "service_whole_item_character_cap": 500000,
+      "ingestion_database_sha256_declared_not_reopened": "20545cdeda67ea3adf9f8656692daf1f4b38f023849c0a185d171da8d39dfb98",
+      "ingestion_summary_sha256": "6f84ec49c381d496854604c74edcaff92fec4eaa110b862bd260762d6c7872a8",
+      "ingestion_retrieval_sha256": "9674ff9d5a66a2045711a0c0f0a9caf72ed80d4aadb117a767343982c5bedadc"
+    }
+  ],
+  "prepared_file_sha256": {
+    "histories": "0153012da17258b48b4a8e093311610dfc542238ab3d54ef23003a77a394914e",
+    "queries": "eefbb28dd043d77f71b330e75e58591799f913a1c486e4b64dc9e4e6252e0f18",
+    "gold": "1f470aa97e9d760ca2f14b305d5ed681e8aeff90e34b09fbd437a8848eb23d17"
+  },
+  "integrity": {
+    "adapter_sha256": "10eeaf69b9613637ce2b250e4863bbdcd91e441ef26ab13d6a7886d0ff20bbfd",
+    "source_unchanged_during_run": true,
+    "answer_system_sha256": "ede52481f49247fadde41b33d6fd777bfbc1f5f42b7adef63ca1cbc502b53f65",
+    "judge_system_sha256": "2d028404463b9f78df29a3dccd4e65944d144acb0221d4aebef6fa0a7dd8dc2f",
+    "private_raw_records_sha256": "e3e4d95e05d017d9029f9508f05bd0fb449426e8a65922eb1629011f3bc6e5cb",
+    "private_summary_sha256": "53f728cabbe096dab4a52433a6d8fb099f03cf4313eedd4aaad65ae310697e7a",
+    "private_runtime_sha256": "476eebed439abc825956e36090a2611dc66d7491f8aa437bfe4c7fe6c06ff20c",
+    "model_manifest_sha256": "087ddf48614aff59996b4e2c84a2faf6c5896ecb5ce79157b21b3ec75906a089",
+    "server_state_sha256": "4b67186e2c26f323d8ade35610d1f667a754da17ee0038eee4b700776d0c4082",
+    "matched_unique_question_side_rows_verified": 120
+  },
+  "limitations": [
+    "Official AML Answer/Judge models, prompt, packing and scoring are undisclosed; this proxy cannot predict official Overall or guarantee a win.",
+    "This first version covers only selected LoCoMo and LongMemEval_s free-answer dev questions; it does not represent all seven capability families or PersonaMem/CLBench/BEAM/rubric tasks.",
+    "The budget covers our content tokenizer plus a declared chat reserve, not a verified production prompt. Whole-item prefixes may differ from official final-item truncation.",
+    "Cost is an uncached token-price estimate, not a provider billing guarantee; unknown usage reserves full estimated cost. Any reported token excess stops further calls.",
+    "Only selected public dev questions are compared; failures stay in the matched denominator. Dry-run reports no answer accuracy.",
+    "Same proxy model may answer and judge; judge bias and correlated questions limit interpretation. No automatic retries or resume are performed.",
+    "Original public question_date is supplied to both Answer and Judge for relative-time context; its timezone and official AML serialization are unverified. Earlier proxy runs without this date are not directly comparable.",
+    "This is public development data, not a held-out or official AML result.",
+    "The evidence source is the existing E5 development baseline, not a text-embedding-v4 Academic candidate.",
+    "The current Qwen tokenizer differs from the earlier o200k evidence-only report; equal numeric budgets are not identical packing.",
+    "Same-model Judge scores are preserved verbatim; any post-hoc review is separate and does not rewrite these metrics.",
+    "No source publication, production memory service change or official Smoke/Full was performed by this experiment."
+  ]
+}
