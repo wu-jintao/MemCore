@@ -1,0 +1,67 @@
+{
+  "schema_version": "public-retrieval-proxy-v1",
+  "status": "public_proxy_not_official_aml",
+  "captured_date": "2026-10-05",
+  "purpose": "Local retrieval diagnosis only; no AML private benchmark, formal Smoke, Full, training or paid model request.",
+  "upstream_aml": {
+    "repository": "https://github.com/AML-memory/agent-memory-leaderboard",
+    "commit": "1b8142bfe0f20f1c5218d6b554aa0012de34e504",
+    "scope": "Public Answer/Eval contracts, not benchmark data or production orchestration. This harness is newly authored and does not copy upstream evaluator code.",
+    "api_guide": "https://agentmemoryleaderboard.ai/api-guide"
+  },
+  "split": {
+    "seed": "aml-public-proxy-2026-v1",
+    "fractions": {"dev": 0.6, "validation": 0.2, "heldout": 0.2},
+    "assignment": "Sort group IDs by SHA256(seed + dataset + group); allocate whole groups 60/20/20. Never split a LoCoMo conversation's questions. LongMemEval groups additionally connect shared annotated evidence sessions.",
+    "limitations": "LongMemEval supplies per-question constructed histories, not a persistent real-user ID. Reused filler sessions may occur across splits; evidence-session reuse is kept within a split. LoCoMo has only 10 conversations, so estimates have substantial group uncertainty.",
+    "heldout_policy": "Prepared counts may be inspected; retrieval results are not evaluated until final selection. The runner requires an explicit --final-heldout flag and writes a one-time lock. Do not use heldout results for iterative selection."
+  },
+  "datasets": [
+    {
+      "id": "longmemeval_s",
+      "repository": "https://github.com/xiaowu0162/LongMemEval",
+      "repository_commit": "9e0b455f4ef0e2ab8f2e582289761153549043fc",
+      "dataset_repository": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned",
+      "dataset_revision": "98d7416c24c778c2fee6e6f3006e7a073259d48f",
+      "license": "MIT (upstream repository and dataset card); retain attribution and license. Underlying filler sources retain their own terms.",
+      "authors": "Di Wu, Hongwei Wang, Wenhao Yu, Yuwei Zhang, Kai-Wei Chang, Dong Yu",
+      "citation": "LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory, ICLR 2025, arXiv:2410.10813",
+      "observed_source_questions": 500,
+      "observed_source_messages": 246750,
+      "ground_truth": "has_answer=true marks turn-level evidence. answer_session_ids additionally supports coarse session diagnostics. The 30 abstention questions have no recall gold and are excluded, following upstream retrieval evaluation. Empty unannotated filler turns are omitted and counted to respect nonempty Add; empty evidence would fail preparation.",
+      "files": [
+        {"name": "longmemeval_s_cleaned.json", "url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/98d7416c24c778c2fee6e6f3006e7a073259d48f/longmemeval_s_cleaned.json", "size": 277383467, "sha256": "d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442"},
+        {"name": "longmemeval_LICENSE.txt", "url": "https://raw.githubusercontent.com/xiaowu0162/LongMemEval/9e0b455f4ef0e2ab8f2e582289761153549043fc/LICENSE", "size": 1062, "sha256": "d3c4b9aa54759df6ded337978a6f3b55b75615e5e4525c3b82d7e2627d4b9732"},
+        {"name": "longmemeval_dataset_card.md", "url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/raw/98d7416c24c778c2fee6e6f3006e7a073259d48f/README.md", "size": 626, "sha256": "fe31783d4e5d132681a25e4192e85def8edd214094939879f5283818c0a4a3e0"}
+      ]
+    },
+    {
+      "id": "locomo_refined",
+      "repository": "https://github.com/mem-eval-suite/LoCoMo_refined",
+      "repository_commit": "887091190789e8d6760e70b9edd696539923dc4f",
+      "original_repository": "https://github.com/snap-research/locomo",
+      "original_repository_commit": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+      "license": "CC BY-NC 4.0, including adapted original LoCoMo material. Local noncommercial research use; retain LICENSE and NOTICE, do not bundle benchmark data in the service/release.",
+      "authors": "Mem-eval-suite Team; original LoCoMo by Snap Research",
+      "citation": "LoCoMo-Refined (2026); original: Evaluating Very Long-Term Conversational Memory of LLM Agents, ACL 2024, arXiv:2402.17753",
+      "observed_source_conversations": 10,
+      "observed_source_questions": 1382,
+      "observed_source_messages": 5882,
+      "ground_truth": "Published qa.evidence dialogue turn IDs, resolved against the original conversation. Exclude is_multi_modality=true questions from this text-only proxy. Strictly parse combined/zero-padded IDs; unresolved evidence excludes the whole question and is reported.",
+      "files": [
+        {"name": "locomo_refined.json", "url": "https://raw.githubusercontent.com/mem-eval-suite/LoCoMo_refined/887091190789e8d6760e70b9edd696539923dc4f/data/raw/locomo_refined.json", "size": 2745985, "sha256": "1aef6da702087d72515d1b9224f0956a2fbab415c11936253bf7d967d3cf8c17"},
+        {"name": "locomo_refined_LICENSE.txt", "url": "https://raw.githubusercontent.com/mem-eval-suite/LoCoMo_refined/887091190789e8d6760e70b9edd696539923dc4f/LICENSE.txt", "size": 19320, "sha256": "6ff87f48bc663294a93fdfe0f8d0d1b89cb51653be8edb0c85b76b4880496d70"},
+        {"name": "locomo_refined_NOTICE.txt", "url": "https://raw.githubusercontent.com/mem-eval-suite/LoCoMo_refined/887091190789e8d6760e70b9edd696539923dc4f/NOTICE", "size": 1166, "sha256": "b2bb3289e34653b903d49a0d0051ae856e7a7170ca3cf7f80a6efdbcb5dad3b7"}
+      ]
+    }
+  ],
+  "ingestion_boundary": "Only history messages, public speaker/session dates and opaque user/session/request IDs reach Add. Questions, answers, evidence IDs, has_answer, summaries and observations are grader-side only. Search sees the original question; question_date stays grader-side in this proxy.",
+  "metrics": {
+    "full_turn_recall_any": "Fraction of evaluated questions with at least one complete gold turn text returned. Use source-and-content verification, otherwise only history-unique whole text can establish a turn hit.",
+    "full_turn_recall_all": "Fraction of evaluated questions with every gold turn returned; this is coverage of annotated turns, not answer correctness.",
+    "full_turn_recall_macro": "Mean per-question fraction of annotated turns returned.",
+    "source_verified_turn_recall": "Whole gold text AND correctly mapped source position/stable original message ID; metadata alone never counts.",
+    "session_recall": "Coarse diagnostic, reported separately; a session hit alone does not establish turn coverage.",
+    "budgets": "Evaluate returned item prefixes at k=5,10,20,50,100 when available. Optional character budget is explicitly characters, not tokens. No tokenizer or Answer/Judge is invoked."
+  }
+}
