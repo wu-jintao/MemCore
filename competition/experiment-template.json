@@ -1,0 +1,47 @@
+{
+  "experiment_id": "fill-me",
+  "status": "not_run",
+  "evaluation_kind": "public_proxy_not_official_aml",
+  "code_version": null,
+  "dataset_version": null,
+  "split": "frozen_validation",
+  "split_by": "user_or_complete_history",
+  "index_inputs": ["history_messages_only"],
+  "retrieval": {
+    "lexical": null,
+    "embedding_model": null,
+    "fact_extractor_model": null,
+    "fact_prompt_version": null,
+    "reranker_model": null,
+    "query_rewriter_model": null,
+    "top_k_cap": 100,
+    "evidence_token_budget": null
+  },
+  "external_reader": {
+    "model": null,
+    "prompt_version": null,
+    "scorer_version": null
+  },
+  "measurements": {
+    "question_count": null,
+    "recall_any": null,
+    "recall_all": null,
+    "evidence_span_coverage": null,
+    "answer_accuracy_by_dataset": {},
+    "answer_accuracy_by_capability": {},
+    "mean_evidence_tokens": null,
+    "search_p50_ms": null,
+    "search_p95_ms": null,
+    "add_requests_per_second": null,
+    "error_rate": null,
+    "usage_input_tokens": null,
+    "usage_output_tokens": null,
+    "cost_currency": null,
+    "cost_amount": null
+  },
+  "changed_component": null,
+  "baseline_experiment_id": null,
+  "paired_uncertainty": null,
+  "decision": null,
+  "notes": "Never insert evaluation questions, gold answers, or evidence labels into Add; do not compare proxy scores to official AML scores."
+}
