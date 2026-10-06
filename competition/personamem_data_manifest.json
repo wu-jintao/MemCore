@@ -1,0 +1,32 @@
+{
+  "dataset": "personamem_v1_32k",
+  "upstream": "bowen-upenn/PersonaMem-v1",
+  "revision": "a8076d5608c93ba2a28983cd78aa99b01a163ae7",
+  "license": "mit",
+  "files": [
+    {
+      "name": "README.md",
+      "url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v1/resolve/a8076d5608c93ba2a28983cd78aa99b01a163ae7/README.md",
+      "size": 7139,
+      "sha256": "1b9160ff0719535cbd0fe5952922f69b705362873489d566372318dbc1334193",
+      "git_blob_sha1": "cbdbe59590ab2377ab7d6e4bcb0c10897b5580a6"
+    },
+    {
+      "name": "questions_32k.csv",
+      "url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v1/resolve/a8076d5608c93ba2a28983cd78aa99b01a163ae7/questions_32k.csv",
+      "size": 1305366,
+      "sha256": "cccd34cf53e0bc4d9536c04cff5ca045156d9a4e227e83327112482840bbc93c",
+      "git_blob_sha1": "4e178038845532f7eb865aa18e228dc664658b66"
+    },
+    {
+      "name": "shared_contexts_32k.jsonl",
+      "url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v1/resolve/a8076d5608c93ba2a28983cd78aa99b01a163ae7/shared_contexts_32k.jsonl",
+      "size": 5613210,
+      "sha256": "217247ebfec9e8442fc53570c795ab69f21aad08745f7de78d9beab51b122d4a",
+      "git_blob_sha1": "473447f007a1bcec2ee9d149b9396271b6b78fc4"
+    }
+  ],
+  "status": "public_native_proxy_not_official_aml",
+  "split_seed": "aml-public-proxy-personamem-20261005-v1",
+  "no_questions_or_labels_used_for_retrieval_tuning": true
+}
