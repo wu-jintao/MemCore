@@ -1,0 +1,145 @@
+{
+  "status": "local_capability_and_data_boundary_checks_not_official_aml",
+  "date": "2026-10-06",
+  "synthetic": {
+    "behavior": {
+      "reserved": {
+        "passed_steps": 26,
+        "total_steps": 26,
+        "source_grounding": {
+          "passed_searches": 14,
+          "searches": 14
+        },
+        "model_requests": 0
+      },
+      "emitted": {
+        "passed_steps": 26,
+        "total_steps": 26,
+        "source_grounding": {
+          "passed_searches": 14,
+          "searches": 14
+        },
+        "model_requests": 0
+      }
+    },
+    "default_grouping": "reserved",
+    "model_test_grouping": "reserved",
+    "semantic_judgment": {
+      "correct": 9,
+      "denominator": 10,
+      "accuracy_including_failures": 0.9,
+      "failed": 0,
+      "capabilities": [
+        {
+          "capability": "streaming",
+          "correct": true
+        },
+        {
+          "capability": "fact_update",
+          "correct": true
+        },
+        {
+          "capability": "fact_history",
+          "correct": true
+        },
+        {
+          "capability": "preference",
+          "correct": false
+        },
+        {
+          "capability": "role",
+          "correct": true
+        },
+        {
+          "capability": "rule",
+          "correct": true
+        },
+        {
+          "capability": "negation",
+          "correct": true
+        },
+        {
+          "capability": "time_order",
+          "correct": true
+        },
+        {
+          "capability": "list",
+          "correct": true
+        },
+        {
+          "capability": "isolation",
+          "correct": true
+        }
+      ]
+    },
+    "usage": {
+      "attempted_requests": 20,
+      "reported_requests": 20,
+      "prompt_tokens": 5698,
+      "completion_tokens": 181
+    },
+    "raw_sha256": "9e49df396c4ca4cf00870d97f1c74470c1817e710ddce18a3aff00dce29b0403",
+    "model": "Qwen3-32B same-family Answer/Judge",
+    "prompt_contract": "public-free-answer-contract-proxy-v1",
+    "semantic_grading": "Independent free-answer rubric, not canonical string exact-match mode",
+    "observed_failure": "Both source-grounded statements entered Answer, but the answer attributed the assistant preference to the user. No manual regrade or service fix is claimed.",
+    "streaming_scope": "Small incremental Add capability case, not official Streaming evaluation",
+    "all_inputs_and_tools_unchanged": true,
+    "independent_failure_audit_sha256": "a74d1444690bcb390f9e61a195dcea9eb6edd318e4bd3852edf818d9e1dc539e",
+    "next_unmeasured_ablation": "Separate source-role explanation and reversed display-order tests; preserve both user and assistant original bodies; freeze Answer/Judge."
+  },
+  "identity_boundaries": {
+    "public_not_blind": true,
+    "longmemeval_s": {
+      "development_questions": 470,
+      "independent_validation_questions": 0,
+      "holdout_questions": 0,
+      "reason": "Shared native historical session IDs connect the entire prepared public set."
+    },
+    "locomo_refined": {
+      "development_questions": 547,
+      "development_conversations": 6,
+      "validation_questions": 183,
+      "validation_conversations": 2,
+      "holdout_questions": 129,
+      "holdout_conversations": 2,
+      "allocation": "Original 6/2/2 prepared split retained, complete conversations.",
+      "holdout_retrieval_or_answer_executed": false
+    },
+    "manifest_sha256": "727dd27ecc2158102654824f8b8c4b9e0d73f283822088b4bca297f2fbbd399c",
+    "original_frozen_manifest_sha256": "4a06fb213486c777cf07f13f529ca6002aae7f7fc124394b288aca45d550248e",
+    "private_additional_usage_changes_groups_or_partition": false
+  },
+  "personamem": {
+    "status": "prepared_and_independently_audited_only",
+    "dataset": "bowen-upenn/PersonaMem-v1",
+    "revision": "a8076d5608c93ba2a28983cd78aa99b01a163ae7",
+    "license": "mit",
+    "questions": 589,
+    "persona_groups": 20,
+    "full_contexts": 37,
+    "history_prefixes": 222,
+    "split_question_counts": {
+      "dev": 356,
+      "validation": 122,
+      "heldout": 111
+    },
+    "native_cutoff_and_role_messages_audited": 35918,
+    "exact_native_query_reappearance": 64,
+    "native_query_substring_reappearance": 65,
+    "future_history_messages_included": false,
+    "CSV_question_appended_to_Add": false,
+    "next_execution_requirement": "Separate user scopes for each persona/context/cutoff to avoid prefix contamination.",
+    "retrieval_or_model_evaluation_executed": false,
+    "preparation_tool_sha256": "db299f25dcca85f8ab12cd84a46e891ae5ce07afa647bd55c258d8275fa54a01"
+  },
+  "remaining_real_data_adapters": [
+    "ScriptMem",
+    "BEAM",
+    "CLBench"
+  ],
+  "actual_paid_api_requests": 0,
+  "api_fee_usd": 0,
+  "compute_cost_accounted": false,
+  "official_score": null
+}
