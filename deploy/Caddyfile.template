@@ -1,0 +1,45 @@
+# Replace API_HOST with the verified public hostname before installing.
+{
+    servers :443 {
+        timeouts {
+            read_body_idle 30m
+            write_idle 30m
+        }
+    }
+}
+
+API_HOST {
+    log {
+        output file /var/log/caddy/aml-memory/access.jsonl {
+            mode 0600
+            dir_mode 0700
+            roll_size 10MiB
+            roll_keep 3
+            roll_keep_for 72h
+        }
+        format filter {
+            wrap json
+            fields {
+                request delete
+                resp_headers delete
+                user_id delete
+            }
+        }
+    }
+    log_append <method {http.request.method}
+    log_append <path {http.request.uri.path}
+    log_append upstream_latency_ms {rp.upstream.latency_ms}
+    log_append upstream_duration_ms {rp.upstream.duration_ms}
+    encode gzip
+    request_body {
+        max_size 8MiB
+    }
+    reverse_proxy 127.0.0.1:8080 {
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 30m
+            read_timeout 30m
+            write_timeout 30m
+        }
+    }
+}
