@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "status": "completed_offline_public_dev_session_candidate_audit_no_score_changes",
+  "scope": {
+    "dataset": "longmemeval_s/dev",
+    "questions": 60,
+    "gold_used_for_diagnostics_only": true,
+    "no_parameter_tuning_from_labels": true,
+    "answer_judge_requests_by_audit": 0,
+    "formal_private_trajectories_read": false
+  },
+  "method": {
+    "packing": "Exact frozen v3 whole-item prefix; offline Qwen3 actual chat template",
+    "memory_tokens": 32000,
+    "input_tokens": 64000,
+    "chat_reserve": 64,
+    "enable_thinking": false,
+    "public_question_date": true,
+    "adapter_sha256": "10eeaf69b9613637ce2b250e4863bbdcd91e441ef26ab13d6a7886d0ff20bbfd",
+    "session_rrf_k": 60,
+    "session_max_bm25_weight": 0.5,
+    "algorithm_status": "Independent session RRF adaptation; not a full ReFind reproduction"
+  },
+  "index_checks": {
+    "same_ingestion_provenance_verified": true,
+    "copied_db_file_hashes_verified": true,
+    "original_db_file_hash_verified": true,
+    "corpus_message_vector_core_identity_recomputed": true,
+    "core_sha256": "dc4fe0472b8bd49dbddb23498ecff63c29de14d6832431092573c45ec0c7636b",
+    "semantic_snapshot_sha256": "00d18e0e4d96d383b5cc6ff0302f17e3d97d4afe26b1d9658ca6d6e128179a4f",
+    "same_prepared_data_hashes": true,
+    "only_search_ast_changed_relative_to_successful_v2": true
+  },
+  "fixed_pool": {
+    "raw_scope": {
+      "all60_original_top100_anchor_ids_in_emitted_sources": true,
+      "all60_full_source_id_sets_identical_to_v2": true,
+      "total_sources_both": 11008,
+      "source_bytes_scope_errors": 0,
+      "source_occurrence_duplicates": 0,
+      "added_adjacent_sources": 0,
+      "removed_adjacent_sources": 0
+    },
+    "fresh_prefix_comparison": {
+      "v2": {
+        "questions": 60,
+        "full_complete": 58,
+        "full_strict_hits": 123,
+        "prefix_complete": 50,
+        "prefix_strict_hits": 109,
+        "annotated_turns": 126
+      },
+      "candidate": {
+        "questions": 60,
+        "full_complete": 58,
+        "full_strict_hits": 123,
+        "prefix_complete": 50,
+        "prefix_strict_hits": 107,
+        "annotated_turns": 126
+      },
+      "complete_gains": 0,
+      "complete_losses": 0,
+      "prefix_source_added": 344,
+      "prefix_source_removed": 332
+    },
+    "bge_comparison": {
+      "v2": {
+        "questions": 60,
+        "full_complete": 58,
+        "full_strict_hits": 123,
+        "prefix_complete": 58,
+        "prefix_strict_hits": 123,
+        "annotated_turns": 126
+      },
+      "candidate": {
+        "questions": 60,
+        "full_complete": 58,
+        "full_strict_hits": 123,
+        "prefix_complete": 58,
+        "prefix_strict_hits": 123,
+        "annotated_turns": 126
+      },
+      "complete_gains": 0,
+      "complete_losses": 0,
+      "all60_full_ordered_id_content_identical": true,
+      "all60_actual_qwen_packed_message_hashes_identical": true,
+      "all60_selected_item_counts_identical": true,
+      "service_score_metadata_values_different": 58,
+      "packing_ignores_service_score": true
+    },
+    "implication": "With BGE the fixed-pool candidate yields identical Answer inputs on all 60 questions; repeating QA offers no new input comparison."
+  },
+  "candidate_selection": {
+    "scope": {
+      "raw_count_and_unique_60_verified": true,
+      "reranked_exact_original_fresh_item_multisets_verified": true,
+      "source_bytes_scope_errors": 0,
+      "source_occurrence_duplicates": 0,
+      "new_anchors_allowed": true,
+      "all_sources_verified_against_same_scoped_original_history_and_database": true,
+      "total_sources_v2": 11008,
+      "total_sources_candidate": 10104,
+      "source_added": 932,
+      "source_removed": 1836
+    },
+    "fusion_pool_membership": {
+      "code_bound": "Existing lexical/dense fusion pool, at most 400 per channel and 800 distinct candidates at requested top_k=100; same source/index and only reviewed search code changes.",
+      "historical_intermediate_pool_ids_recorded": false,
+      "historical_actual_membership_directly_verified": false,
+      "audit_replay_performed": false,
+      "limitation": "Original run did not record intermediate fusion pools. Code-level bound plus scoped source/index verification is provided, without claiming historical runtime pool identity."
+    },
+    "fresh_prefix_comparison": {
+      "v2": {
+        "questions": 60,
+        "full_complete": 58,
+        "full_strict_hits": 123,
+        "prefix_complete": 50,
+        "prefix_strict_hits": 109,
+        "annotated_turns": 126
+      },
+      "candidate": {
+        "questions": 60,
+        "full_complete": 56,
+        "full_strict_hits": 116,
+        "prefix_complete": 50,
+        "prefix_strict_hits": 107,
+        "annotated_turns": 126
+      },
+      "complete_gains": 0,
+      "complete_losses": 0
+    },
+    "bge_comparison": {
+      "v2": {
+        "questions": 60,
+        "full_complete": 58,
+        "full_strict_hits": 123,
+        "prefix_complete": 58,
+        "prefix_strict_hits": 123,
+        "annotated_turns": 126
+      },
+      "candidate": {
+        "questions": 60,
+        "full_complete": 56,
+        "full_strict_hits": 116,
+        "prefix_complete": 56,
+        "prefix_strict_hits": 116,
+        "annotated_turns": 126
+      },
+      "complete_gains": 1,
+      "complete_losses": 3,
+      "turn_hit_gains": 2,
+      "turn_hit_losses": 9,
+      "reranker_model_config_libraries_identical": true
+    },
+    "implication": "The candidate-selection variant reduces source and strict annotated coverage; no new QA or label-based weight rescue is supported by this audit."
+  },
+  "limits": [
+    "All coverage is a public-dev retrieval/prefix proxy, not Answer accuracy or official AML score.",
+    "Source scope and bytes are verified; complete annotations do not establish complete unannotated task facts.",
+    "Original baseline metrics and raw runs are unchanged.",
+    "No new model generation, index rebuild, Add or historical pool replay was performed."
+  ],
+  "source_files": {
+    "v2_fresh_summary": {
+      "path": ".local/packing-research-20261006/runs/20261005T194730Z-searchonly-8216968c/summary.json",
+      "sha256": "00d26f3080008699b221daaa873cbba608098c309adff64ff9860d43fb19ce25"
+    },
+    "fixed_fresh_summary": {
+      "path": ".local/packing-research-20261006/session-rrf-runs/20261006T085045Z-searchonly-7ff6cb4f/summary.json",
+      "sha256": "0645d266196d274aebb5b84656ea129b54e2f59d863b6dee3d80aceb7451b7ea"
+    },
+    "fixed_fresh_retrieval": {
+      "path": ".local/packing-research-20261006/session-rrf-runs/20261006T085045Z-searchonly-7ff6cb4f/retrieval.jsonl",
+      "sha256": "28f733e314bd207c6208e6540b34cd49795399eb054b680299fbb3aed917196a"
+    },
+    "v2_bge_summary": {
+      "path": ".local/packing-research-20261006/rerank-worker/summary.json",
+      "sha256": "f0810d4e4fb627f8ca5d86cb03043ecc3a03c58d2518e58ab440e330dad5a67c"
+    },
+    "v2_bge_retrieval": {
+      "path": ".local/packing-research-20261006/rerank-worker/retrieval.jsonl",
+      "sha256": "32f00bca819de5090727b8efbbbaf36c67f309a271be1847cfdb43ebfd8c11d7"
+    },
+    "fixed_bge_summary": {
+      "path": ".local/packing-research-20261006/session-rrf-rerank-worker/summary.json",
+      "sha256": "8e5af31d05baa3ac30e0245803c1484d380f960908d2b0c29ff338f3c5124744"
+    },
+    "fixed_bge_retrieval": {
+      "path": ".local/packing-research-20261006/session-rrf-rerank-worker/retrieval.jsonl",
+      "sha256": "4d3672872f5b0703122d5b012fde2c33c717ebbfee3bc9c9c94c5e2635438e2c"
+    },
+    "recall_fresh_summary": {
+      "path": ".local/packing-research-20261006/session-recall-runs/20261006T085811Z-searchonly-71c750a1/summary.json",
+      "sha256": "50e782ac65842e074ce9cb6dfd3b12162fe78af27ff857d42bf28f7d540b78bf"
+    },
+    "recall_fresh_retrieval": {
+      "path": ".local/packing-research-20261006/session-recall-runs/20261006T085811Z-searchonly-71c750a1/retrieval.jsonl",
+      "sha256": "7df1d0882b381b500bdbe35d5000187e81db976cc50d934ad55b723bdec63f31"
+    },
+    "recall_bge_summary": {
+      "path": ".local/packing-research-20261006/session-recall-rerank-worker/summary.json",
+      "sha256": "0b427105fec4863ff15732a5529de6da4276a9aef6a8497e47c999e943d2fa5e"
+    },
+    "recall_bge_retrieval": {
+      "path": ".local/packing-research-20261006/session-recall-rerank-worker/retrieval.jsonl",
+      "sha256": "fa9e8220c48d9db29286041aa3158a7b84a844f2ee56e63bbcfa7a5b9f8f661a"
+    }
+  },
+  "same_bge_helper_sha256": "2293f8fce502660318716a795c5cbcb0b96dd4df9baadf46288c7f821fb2807b",
+  "same_bge_model_manifest_sha256": "880cb22f8554e1d5205dd35d3596bf0e4e1e99b836673e7abc1adcd3a0cfe38d",
+  "private_aggregate_sha256": "7d4db3f75b38402c3b9de03d193517dafed389a718f6180d170fd33d8b4d6486"
+}
