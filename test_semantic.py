@@ -283,12 +283,180 @@ class HttpBackendTests(unittest.TestCase):
                     backend.embed_documents(["first", "second"])
                 self.assertEqual(len(calls), 1)
 
+    def test_redirects_never_forward_requests_or_credentials(self):
+        target_calls, source_calls = [], []
+        synthetic_key = "synthetic-redirect-test-key"
+
+        class TargetHandler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_GET(self):
+                target_calls.append((self.command, self.headers.get("Authorization")))
+                raw = json.dumps({"data": [{"index": 0, "embedding": [1.0, 2.0, 3.0]}]}).encode()
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+
+            do_POST = do_GET
+
+        target = ThreadingHTTPServer(("127.0.0.1", 0), TargetHandler)
+        target_url = "http://127.0.0.1:" + str(target.server_port) + "/redirected"
+
+        class RedirectHandler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                source_calls.append(self.headers.get("Authorization"))
+                raw = (synthetic_key + " synthetic redirect response body").encode()
+                self.send_response(self.server.redirect_status)
+                self.send_header("Location", target_url)
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+
+        source = ThreadingHTTPServer(("127.0.0.1", 0), RedirectHandler)
+        workers = [threading.Thread(target=service.serve_forever, daemon=True)
+                   for service in (target, source)]
+        for worker in workers:
+            worker.start()
+        try:
+            endpoint = "http://127.0.0.1:" + str(source.server_port) + "/embeddings"
+            backend = HttpEmbeddingBackend(self.configuration(
+                endpoint, api_key=synthetic_key, http_retries=2))
+            for expected_calls, status in enumerate((301, 302, 303, 307, 308), 1):
+                with self.subTest(status=status):
+                    source.redirect_status = status
+                    with self.assertRaises(EmbeddingError) as failure:
+                        backend.embed_documents(["synthetic document"])
+                    self.assertEqual(str(failure.exception), "Embedding service returned HTTP " + str(status))
+                    self.assertIsNone(failure.exception.__cause__)
+                    self.assertTrue(failure.exception.__suppress_context__)
+                    self.assertEqual(len(source_calls), expected_calls)
+                    self.assertEqual(source_calls[-1], "Bearer " + synthetic_key)
+                    self.assertEqual(target_calls, [])
+        finally:
+            for service, worker in zip((target, source), workers):
+                service.shutdown()
+                service.server_close()
+                worker.join(timeout=2)
+
     def test_keys_are_not_in_fingerprint_and_configuration_changes_are(self):
         config = self.configuration("https://example.com/embeddings")
         backend = HttpEmbeddingBackend(config)
         self.assertNotIn("test-key", backend.fingerprint)
         self.assertEqual(backend.fingerprint, HttpEmbeddingBackend(replace(config, api_key="different")).fingerprint)
         self.assertNotEqual(backend.fingerprint, HttpEmbeddingBackend(replace(config, dimension=4)).fingerprint)
+
+
+class HttpQueueBudgetTests(unittest.TestCase):
+    """Instant slot/clock doubles verify the larger queue without sleeping."""
+
+    class Slot:
+        def __init__(self, available=True):
+            self.available = available
+            self.held = False
+            self.waits = []
+            self.releases = 0
+
+        def acquire(self, timeout):
+            self.waits.append(timeout)
+            if not self.available:
+                return False
+            if self.held:
+                raise AssertionError("Prior embedding operation leaked its slot")
+            self.held = True
+            return True
+
+        def release(self):
+            if not self.held:
+                raise AssertionError("Unacquired slot was released")
+            self.held = False
+            self.releases += 1
+
+    def backend(self):
+        config = HttpBackendTests.configuration("https://synthetic.invalid/embeddings",
+            acquire_timeout=900, operation_timeout=600)
+        backend = HttpEmbeddingBackend(config)
+        backend._slots = self.Slot()
+        return backend
+
+    def test_http_900_is_valid_but_excess_or_nonfinite_waits_fail(self):
+        config = replace(self.backend().config, model="text-embedding-v4",
+                         dimension=2048, batch_size=10)
+        self.assertEqual(config.acquire_timeout, 900)
+        self.assertEqual(config.operation_timeout, 600)
+        self.assertEqual(HttpEmbeddingBackend(config).fingerprint,
+                         HttpEmbeddingBackend(replace(config, acquire_timeout=120)).fingerprint)
+        for wait in (900.0001, 901, float("inf"), float("-inf"), float("nan"), 0, -1, True):
+            with self.subTest(wait=wait), self.assertRaises(EmbeddingConfigError):
+                replace(config, acquire_timeout=wait)
+        for provider in ("disabled", "local"):
+            with self.subTest(provider=provider), self.assertRaises(EmbeddingConfigError):
+                replace(config, provider=provider, acquire_timeout=900)
+        self.assertEqual(EmbeddingConfig(acquire_timeout=300).acquire_timeout, 300)
+
+    def test_whole_multibatch_operation_keeps_one_slot_and_600_deadline(self):
+        backend = self.backend()
+        batches = []
+
+        def encode(texts, deadline):
+            self.assertTrue(backend._slots.held)
+            self.assertEqual(backend._slots.releases, 0)
+            self.assertEqual(deadline, 700)
+            batches.append(list(texts))
+            return [[1.0, 0.0, 0.0] for _ in texts]
+
+        with patch("semantic.time.monotonic", return_value=100), \
+                patch.object(backend, "_encode_batch", side_effect=encode):
+            self.assertEqual(len(backend.embed_documents(["first", "second", "third"])), 3)
+        self.assertEqual([len(batch) for batch in batches], [2, 1])
+        self.assertEqual(backend._slots.waits, [900])
+        self.assertEqual(backend._slots.releases, 1)
+        self.assertFalse(backend._slots.held)
+
+    def test_queue_timeout_does_not_encode_or_release_unacquired_slot(self):
+        backend = self.backend()
+        backend._slots.available = False
+        with patch.object(backend, "_encode_batch", side_effect=AssertionError("No model call")):
+            with self.assertRaisesRegex(EmbeddingError, "queue wait"):
+                backend.embed_documents(["source"])
+        self.assertEqual(backend._slots.waits, [900])
+        self.assertEqual(backend._slots.releases, 0)
+        self.assertFalse(backend._slots.held)
+
+    def test_operation_timeout_releases_slot_and_next_operation_can_succeed(self):
+        backend = self.backend()
+        now = [100]
+
+        def exceed_deadline(texts, deadline):
+            self.assertEqual(deadline, 700)
+            now[0] = 701
+            return [[1.0, 0.0, 0.0] for _ in texts]
+
+        with patch("semantic.time.monotonic", side_effect=lambda: now[0]), \
+                patch.object(backend, "_encode_batch", side_effect=exceed_deadline):
+            with self.assertRaisesRegex(EmbeddingError, "time limit"):
+                backend.embed_documents(["source"])
+        self.assertEqual(backend._slots.releases, 1)
+        self.assertFalse(backend._slots.held)
+        with patch("semantic.time.monotonic", return_value=100), \
+                patch.object(backend, "_encode_batch", return_value=[[1.0, 0.0, 0.0]]):
+            self.assertEqual(len(backend.embed_documents(["next source"])), 1)
+        self.assertEqual(backend._slots.waits, [900, 900])
+        self.assertEqual(backend._slots.releases, 2)
+
+    def test_model_failure_releases_slot_without_successful_result(self):
+        backend = self.backend()
+        with patch("semantic.time.monotonic", return_value=100), \
+                patch.object(backend, "_encode_batch", side_effect=OSError("synthetic network error")):
+            with self.assertRaisesRegex(EmbeddingError, "Embedding operation failed"):
+                backend.embed_documents(["source"])
+        self.assertEqual(backend._slots.releases, 1)
+        self.assertFalse(backend._slots.held)
 
 
 if __name__ == "__main__":

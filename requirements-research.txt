@@ -1,0 +1,4 @@
+# Optional token-accounting and local answer-planning dependency.
+# Core lexical/HTTP service does not require this package.
+# Tokenizer assets must be cached separately for an offline analysis.
+tiktoken==0.14.0

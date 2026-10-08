@@ -1,0 +1,212 @@
+{
+  "previous_snapshot": "MemCore source-only snapshot 2026-10-06",
+  "candidate_date": "2026-10-08",
+  "core_server_unchanged": true,
+  "core_semantic_change": "Reject embedding HTTP redirects; no retrieval algorithm change.",
+  "source_changes": [
+    {
+      "file": "semantic.py",
+      "status": "changed",
+      "old_sha256": "638fdde47803729ef94ff9657ffc83a3c025409f3236e2ed809c206caf8f895e",
+      "candidate_sha256": "76fd9cca02beeaa8f8ef01ea367152734b9b695873182aca9b8acaa52f087bd3"
+    },
+    {
+      "file": "test_semantic.py",
+      "status": "changed",
+      "old_sha256": "8ed81f0c461c4888a83b0d46c46fd7fc9117444184ff3cb88860758ef1e804d6",
+      "candidate_sha256": "84def99d8dadcb419e4773991ce971011c48206eaeda931ac7c5814b433eb8d1"
+    },
+    {
+      "file": "competition/eval_prepare.py",
+      "status": "changed",
+      "old_sha256": "61989dc2897f8c4c97e10ced3c6da75d11019074e3c92e8907b980c1cbd39ed2",
+      "candidate_sha256": "e852a746b044ac19af984eb704b2fc73138981f673b05338f6faf2a8c7db1ed4"
+    },
+    {
+      "file": "competition/eval_persona_pair.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "603ec38ad3fe905fefe626f2dd7df576f0c064dd4299eefd65eaeaf79c357098"
+    },
+    {
+      "file": "competition/eval_persona_pair_test.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "f0dbc2cba4c77ec106a4bbfa84963460205cb25c33da1688ea5c9282ad15abf4"
+    },
+    {
+      "file": "competition/eval_v4_budget.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "db7946e7f3bf8de5c59cd1a593bb747b9b8d7c9fea046a2c47dc802df0bd3f50"
+    },
+    {
+      "file": "competition/eval_v4_budget_test.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "9a557fa7277749c11db1599490d55380acde6d359549fe9ab43f6e2778c38f84"
+    },
+    {
+      "file": "competition/eval_v4_query_modes.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "54b2751ba7604e9842c6943610f3913c6b71018f480881777a20b6bfcf808c67"
+    },
+    {
+      "file": "competition/eval_v4_query_modes_test.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "427c80dbfc12e8f14eedad6bd12e5b50a648ddcc60230bb0ef0832be2a84b66e"
+    },
+    {
+      "file": "deploy/prepare_http_candidate.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "f2adc24fa77596dd462a594ac6d7cf23a68d9017285014f2c6ff689966321db7"
+    },
+    {
+      "file": "deploy/test_prepare_http_candidate.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "f4798f85bcfcdd946870d5acb0e78f8a0651a6ecf75485588dbc97a0e9daa857"
+    },
+    {
+      "file": "deploy/probe_http_candidate.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "5fe1215347c722c9d3e5b947c47daf617e8168f49ba913a192c685cfd7827d59"
+    },
+    {
+      "file": "deploy/test_probe_http_candidate.py",
+      "status": "new",
+      "old_sha256": null,
+      "candidate_sha256": "56e78349a17c3848b25989189b243f9205ed070e233a1a21053de957def4ec9c"
+    }
+  ],
+  "candidate_only_test_adjustments": [
+    "Reuse published isolated PersonaMem fixture with optional data skip.",
+    "Use an RFC 5737 address in the PersonaMem negative endpoint fixture."
+  ],
+  "copied_implementation_file_count": 45,
+  "runtime_core_files": [
+    "server.py",
+    "semantic.py"
+  ],
+  "excluded": [
+    "Private run directories, raw run outputs and new result artifacts",
+    "Credentials, dotenv, logs, databases, model weights and cached data",
+    "Private application, submission and deployment records",
+    "Git history",
+    "Historical deployment activation scripts and host-specific configuration"
+  ],
+  "candidate_only_implementation_adjustment": {
+    "file": "deploy/probe_http_candidate.py",
+    "change": "Probe skips settimeout on a closed socket after complete HTTP/1.0 response; deadline/timer and genuine errors remain active. This fix was subsequently mirrored into development source by an independent review.",
+    "starter_tool_sha256": "f392b26606f1f8e99f2a2f06157fc4b22f4a0b089202279b10777834f82c8137",
+    "candidate_tool_sha256": "5fe1215347c722c9d3e5b947c47daf617e8168f49ba913a192c685cfd7827d59"
+  },
+  "candidate_only_mock_tests_added": {
+    "file": "deploy/test_probe_http_candidate.py",
+    "tests": 3,
+    "checks": [
+      "complete closed-socket body succeeds",
+      "incomplete body fails",
+      "true read timeout and network failure remain failures"
+    ]
+  },
+  "release_version": "v1.1",
+  "historical_public_reports": {
+    "source_commit": "544b72d51a49139512bdbeec2df1f3198780143f",
+    "files": {
+      "competition/results/.gitignore": "679617f6558a77384911666e1f5b65f8ac738d48b9909a6a91a5151ce0e44063",
+      "competition/results/CALIBRATED_LME60_DEV.json": "fdc53f606a2ce270bc7d6c287a9f72948d1d2b63abbbc724d083cc4e8e40fb47",
+      "competition/results/CAP500K_DEV.json": "a6dd2b4a80e8f5d528ebb3ec3767ad1a374856fe3bf194572ab1438a7e8d18d5",
+      "competition/results/CAP500K_DEV.md": "f2e46bf99eea7d53b66c84a486ddb12dcb6729ec4adfa2bedfdcae4434dfd41a",
+      "competition/results/CAPABILITY_COVERAGE.json": "cac615916332b6661ebe5d6e4273db82f83e58b8ce90f4d0500d3acd26fb0df9",
+      "competition/results/EVALUATION.md": "91541901d013dcfbf08ad02f897c2b78447410a6c55d34aade3ef3d207262f6b",
+      "competition/results/EXPANDED_DEV.json": "49ecd9c86cf85833b769f7a3f639a270d0fb35fdc213298a8e8cf125c8330f8a",
+      "competition/results/EXPANDED_DEV.md": "e68e32acf976223dfc61184fc997afb0d4d7da3703f7241a0378b927360703f3",
+      "competition/results/LOCAL_LLM_LME60_DEV.json": "49d4d5b2cfe2055590c0aff96c214fc75e285b647bcc02fdea523ed5f82d6b18",
+      "competition/results/LOCOMO183_VALIDATION.json": "85653aa1d4dca68620a8e4de3e46a1da673cb7b69ee3949042799a13b8e510fc",
+      "competition/results/PACKING_LME60_DEV.json": "69f2ace157ec86f0bab2359b6df8fc4d0e73db4f5cb35a9bcc91b8cba70c42e8",
+      "competition/results/PUBLIC_TRANSPORT_DIAGNOSTICS.json": "859c1a5bb7dbe7f18200d74d7f062604026cbfb0255a257f937fff90ee52921b",
+      "competition/results/RERANK_LME60_DEV.json": "28b6110a9615231912052dad47b1c928eec3f95d6aaa0da7ff12a40c77e5632c",
+      "competition/results/RESULTS.md": "606b8b2622ffdc964af61ddf8984b90a49302da2a0bf76d25d99927ff11bc8b5",
+      "competition/results/SESSION_RRF_LME60_DEV.json": "39c6c168a20455ac29f5df9b38f58ed1ae38d0f6bf91bda564417a6b5512a71b",
+      "competition/results/TIE_DEV.json": "f2ee5d6a78c3c0e2aefce8ec4bf6df02740dc051cfaaab84bcba3055c2dca526",
+      "competition/results/TIE_DEV.md": "6f3a4f5a7268a5ab652240dd50d59a1dc71f1a7240e02df75d6a6c34bc7ef35e",
+      "competition/results/TOKEN_BUDGETS.json": "52c8ef0024184f4bb084724ce8bf99496441af3f5da35a62ea8ea75ac2b5189c",
+      "competition/results/TOKEN_BUDGETS.md": "cb5c29199b3c4272c5fafae6026c497edcbb8c08d1c75acfc00359c77e8225ed"
+    },
+    "retention": "Original paths and exact bytes; results apply only to each recorded historical configuration."
+  },
+  "docstring_only_adjustment": {
+    "file": "competition/eval_prepare.py",
+    "change": "Point usage text to README.md in the same directory instead of the historical EVALUATION.md."
+  },
+  "deleted_old_files": [
+    "SEMANTIC.md",
+    "competition/LOCAL_LLM.md",
+    "deploy/Caddyfile.template",
+    "deploy/VALIDATION.md",
+    "deploy/activate_semantic.py",
+    "deploy/aml-memory.service",
+    "deploy/inspect_host.py",
+    "deploy/install_app.sh"
+  ],
+  "source_tree_counts": {
+    "previous": 71,
+    "new": 79,
+    "deleted": 8,
+    "added": 16
+  },
+  "queuefix": {
+    "parent_source_manifest_sha256": "192f5c6349dce37bcb4e549e786ab879665aea766987ad2943dc454999adc916",
+    "pre_queuefix_semantic_sha256": "59163d78e889f8ae10ce4b63bba8b54fcfc4f5f6e5d00150160098bc5d1c0e50",
+    "http_queue_validation_max_seconds": 900,
+    "previous_http_queue_validation_max_seconds": 300,
+    "local_disabled_queue_validation_max_seconds": 300,
+    "selected_deployment_profile": {
+      "queue_seconds": 900,
+      "operation_seconds": 600,
+      "combined_embedding_seconds": 1500,
+      "margin_within_1800_seconds": 300
+    },
+    "default_queue_seconds_unchanged": 120,
+    "operation_timing_and_slot_release_unchanged": true,
+    "byte_identical_implementation_objects": [
+      "_Backend",
+      "_fingerprint",
+      "normalize_vector",
+      "encode_vector",
+      "decode_vector",
+      "LocalE5Backend",
+      "_utf8_segments",
+      "HttpEmbeddingBackend",
+      "build_backend",
+      "rank_vectors"
+    ],
+    "server_byte_identical": true,
+    "QA_cache_source": "Prior semantic source; cache is not a new-source deployment/capacity measurement",
+    "new_mock_tests": 6,
+    "unchanged_implementation_block_sha256": {
+      "_Backend": "23b8981c44cac9b1e552ad0c0e8b5a9f22ba0fde0dafe5dc7e82629cef1e26b0",
+      "_fingerprint": "2e65b3dce0ba6cc217943eb0721c3c24d49e5b3ed1dd7bbc0584a1c2f25d114b",
+      "normalize_vector": "a93ca192dabd942b468737ec851fd9cb9530959a8b07250b78c4736ff262d278",
+      "encode_vector": "ad0331b5bafed5e090cfedc8eea4ff7052437d8a576e00b19e4bad3185bbe4bc",
+      "decode_vector": "6fd92895613b463b5c0eacf2294e6728fa50d47a83496b7ff1d7a7f2d684ef62",
+      "LocalE5Backend": "08dc3e8311f46f053b22e33e8260eeb0d1943e9235ff47cbcb0ff3df106511f0",
+      "_utf8_segments": "4b09e4a0f80fad6fd3d0029689025fef116fc4bd4b65dd2ee01c6ef28e248e12",
+      "HttpEmbeddingBackend": "b9950c5fc06390e1d656e2141098437941d25abb05a89c01aa7c55ef509af8a5",
+      "build_backend": "7ece78a68b0f5c911a8a06b2ad8c4ed625de82914554efa87f22ea622948d58c",
+      "rank_vectors": "b1550c14797027c24a93851d347fe935e123092e1469fc5aa0ea6ceb649aac8b"
+    },
+    "updated_semantic_sha256": "76fd9cca02beeaa8f8ef01ea367152734b9b695873182aca9b8acaa52f087bd3",
+    "tests_passed": {
+      "core": 55,
+      "deploy": 45,
+      "new_instant_mocks": 6,
+      "environment": "Python 3.12.14"
+    }
+  }
+}

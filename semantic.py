@@ -20,7 +20,18 @@ import threading
 import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+
+class _RejectRedirects(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Bearer credentials may only be sent to the configured endpoint.
+        return None
+
+
+def urlopen(request, timeout=None):
+    """Keep a patchable request boundary while refusing every redirect."""
+    return build_opener(_RejectRedirects()).open(request, timeout=timeout)
 
 
 class EmbeddingError(RuntimeError):
@@ -80,7 +91,8 @@ class EmbeddingConfig:
             value = getattr(self, name)
             if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value) or value <= 0:
                 raise EmbeddingConfigError(name + " must be finite and positive")
-        if self.operation_timeout > 1500 or self.acquire_timeout > 300 or self.http_timeout > 120:
+        queue_limit = 900 if self.provider == "http" else 300
+        if self.operation_timeout > 1500 or self.acquire_timeout > queue_limit or self.http_timeout > 120:
             raise EmbeddingConfigError("Configured wait/operation timeout exceeds module bounds")
         if self.provider == "local":
             if self.model != "intfloat/multilingual-e5-small" or self.dimension != 384:

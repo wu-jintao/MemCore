@@ -1,120 +1,71 @@
-# MemCore — method and attribution
+# Method and attribution
 
-This is a participant-authored memory-service implementation for the AML textual
-track. Its purpose is to return attributable historical evidence to the platform
-answer model. It is currently a development candidate; there is no official score,
-final release, or claim of winning the competition.
+Add retains original role, text and optional timestamp. One SQLite transaction
+commits the request acknowledgement, original messages, scoped lexical
+statistics and all configured embedding segments. Retry identity uses complete
+user ID plus request ID and canonical-body equality. Search applies the same
+complete user scope to statistics, postings, vectors and source lookup.
 
-The E5 method described here is a research baseline. The [October 6 competition
-FAQ, question 05](https://agentmemoryleaderboard.ai/competition/) requires
-`text-embedding-v4` for Academic embeddings; a compliant final method must be
-measured and documented separately. The optional HTTP adapter supports its
-explicit output dimensions and ten-input batch limit; no paid call or production
-switch has been made for that model.
+The lexical implementation uses BM25 with k1=1.2 and b=0.75, a positive smoothed
+inverse-document-frequency term, Unicode NFKC/case-folded words and CJK
+characters/bigrams. Original query terms receive weight 1; choice-only terms
+receive weight 0.35. Query terms and ranking candidates are bounded; originals
+are not rewritten.
 
-## What the service contributes
+The v4 HTTP profile uses `text-embedding-v4`, 2048 dimensions, batch size 10,
+empty document/query prefixes and lossless 1536-byte UTF-8 source windows.
+Character boundaries are preserved. The adapter requests every source window;
+provider-side tokenization/truncation is a separate verification concern.
+Document segment scores max-pool to their original message. Long query segment
+vectors are averaged and normalized. Vectors are stored as normalized float32
+BLOBs with a model/configuration fingerprint. Ranking streams the complete
+scoped vector collection with bounded working memory; it is not a sublinear
+vector index.
 
-Add retains the original role, text and optional millisecond timestamp. A single
-SQLite transaction makes the request acknowledgement, original messages, lexical
-statistics and every configured embedding segment durable together. Idempotency
-uses the complete user ID and request ID with canonical-body equality. Search
-scopes every statistics, postings, vectors and source-text lookup to that same
-complete user ID. Different evaluation scopes never share a retrieval corpus.
+Weighted reciprocal-rank fusion uses constant 60. Lexical and semantic weights
+are 1 by default. Exact fusion-score ties prefer lexical rank, then stable source
+ID. Same-session neighbors carry independent source identities. Fully dated
+neighborhoods use supplied dates; a missing date within the neighborhood uses
+received sequence rather than an inferred date. Default context radius is 1
+and grouping is `reserved`. `emitted` is an optional experiment, not the selected
+profile. Search caps `top_k` at 100, whole returned evidence at 500,000 characters
+and each anchor context window at 16,000 characters. These are character limits,
+not an answer model's token budget.
 
-The lexical implementation uses BM25 with k1 = 1.2 and b = 0.75 and a positive
-smoothed inverse-document-frequency term. Unicode NFKC/case-folded words and CJK
-characters/bigrams are indexing representations; original text stays unchanged.
-Original question terms have weight 1. Choice-only terms have weight 0.35. The
-implementation bounds the selected informative terms and candidate lists rather
-than scanning source text in Python. Matching postings still determine SQL work.
+The inference service has no generative extraction, training, fine-tuning, query
+rewrite, reranker or final-answer generation. Offline BGE/Answer/Judge tools are
+included as optional research source, not enabled service components. Labels
+are confined to local grading; preparation keeps original history, questions
+and reference/evidence labels separate.
 
-The optional semantic adapter loads the unchanged, pinned multilingual E5 small
-model from a local directory. Original messages use source-offset token windows
-of 384 tokens with 64-token overlap; prefix and retokenization checks ensure that
-no embedding window exceeds the model limit. `query: ` and `passage: ` prefixes
-follow the model instructions. Segment scores max-pool to their original message.
-Vector scoring streams from the scoped database with bounded working memory.
-It still scans the user's stored vectors and is not a sublinear vector index.
+## Prior work
 
-Hybrid ranking uses weighted reciprocal-rank fusion with constant 60. The current
-equal-weight candidate has lexical weight 1 and semantic weight 1, fixed globally.
-Exact fused-score ties prefer the lexical candidate rank, then stable source ID;
-this preserves a unique lexical source when an unrelated dense-first source has
-the same RRF contribution. The fusion scores themselves are unchanged.
-Same-session neighboring messages may accompany an anchor, each with its own
-source identity. Supplied dates control fully dated neighborhoods. If the anchor
-or a received neighbor within the configured radius lacks a date, adjacency and
-presentation use the scoped received sequence for that neighborhood; missing
-event dates are not inferred. Evidence is returned at whole-message boundaries
-in rank order, with top_k capped at 100. The development implementation currently
-uses a 500,000-character output boundary and 16,000-character context windows;
-these are character budgets, not the platform's token allowance. A single
-oversized first original is preserved whole, so the character boundary is not
-a hard response-size cap. Output-budget
-changes are separate, measured candidates until a final version is selected.
-
-The deployed Add/Search service has no generative extraction, training,
-fine-tuning, query rewrite, reranker or final-answer generation. Separate offline
-research tools test BGE and Answer/Judge models. Benchmark question/reference datasets and evidence
-annotations are not embedded in service code. Local adapters do not append
-question, option, reference or label fields to Add; native historical questions
-remain unchanged, including those present in PersonaMem prefixes. Evaluation
-labels are confined to the offline grader. The generation-model field
-is N/A; any selected embedding model is disclosed separately.
-
-## Prior work and implementation changes
-
-The BM25 and RRF ideas are established retrieval methods, not algorithms invented
-by this project. The service and local public-data evaluation harness were newly
-implemented; neither copies the AML evaluator or an upstream memory-system
-implementation. The contributions described above are the scoped transactional
-storage, lossless segmentation, evidence/source packaging and engineering choices.
-The E5 weights and model behavior are reused unchanged, not retrained on the
-development data or evaluation data.
+BM25 and RRF are established methods. MemCore independently implements scoped
+transactional storage, segmentation, retrieval and evidence packaging; it does
+not claim to invent these ranking algorithms.
 
 - Stephen Robertson and Hugo Zaragoza (2009),
   [The Probabilistic Relevance Framework: BM25 and Beyond](https://doi.org/10.1561/1500000019).
-  This implementation adds complete-user statistics, its disclosed tokenization,
-  bounded query/candidate selection and optional-choice weighting around BM25.
 - Gordon V. Cormack, Charles L. A. Clarke and Stefan Büttcher (2009),
   [Reciprocal Rank Fusion outperforms Condorcet and individual Rank Learning Methods](https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf).
-  This implementation combines its two disclosed retrieval lists and exposes one
-  global semantic weight; it does not learn ranks from benchmark labels.
-- Liang Wang, Nan Yang, Xiaolong Huang, Linjun Yang, Rangan Majumder and Furu Wei
-  (2024), [Multilingual E5 Text Embeddings: A Technical Report](https://arxiv.org/abs/2402.05672).
-  [Upstream model](https://huggingface.co/intfloat/multilingual-e5-small/tree/614241f622f53c4eeff9890bdc4f31cfecc418b3),
-  revision `614241f622f53c4eeff9890bdc4f31cfecc418b3`, MIT, 384 dimensions.
-  Our adapter adds lossless long-message windows, synchronous index completion,
-  scoped persistence and model/configuration fingerprint checks.
+- Liang Wang and colleagues (2024),
+  [Multilingual E5 Text Embeddings: A Technical Report](https://arxiv.org/abs/2402.05672).
+  The optional unchanged multilingual-e5-small model uses revision
+  `614241f622f53c4eeff9890bdc4f31cfecc418b3`, 384 dimensions, local source-offset
+  token windows of 384 with overlap 64 and fixed query/passage prefixes.
+- Hosted v4 integration follows the provider's
+  [embedding API documentation](https://help.aliyun.com/zh/model-studio/text-embedding-synchronous-api).
+  Native query/document modes are isolated research controls; the core runtime
+  continues to use its explicit compatible embeddings route.
 
-## Evaluation and its limits
+Public-dev complete-evidence recall, token-prefix retention and local answer
+proxies measure different properties. None is an official AML score. This
+v1.1 source release does not claim completed QA for the current v4
+configuration, official evaluation, online capacity or competition rank. No new retrieval algorithm is added by this
+publication preparation.
 
-The public-data manifest records dataset versions, authors, licenses, checksums
-and group splits. Retrieval reports measure complete annotated-turn recall and
-actual request failures. Separate local Qwen Answer/Judge comparisons measure
-proxy correctness, including the public-contract calibration profile; they do
-not measure platform answer accuracy, official AML scores, Streaming performance,
-or winning rank. Token analyses use explicitly named
-tokenizers and instruction reserves. Public family Answer/scoring prompts are
-available at the pinned AML repository commit; production model/tokenizer,
-packing and orchestration remain unconfirmed. Development comparisons guide experiments; validation selects the
-method and heldout remains a final check. Small conversation counts and any
-cross-split filler reuse are disclosed.
-
-The native-identity audit places all 470 public LongMemEval questions in one
-development component because their history-session IDs overlap transitively.
-The original LoCoMo whole-conversation validation and holdout are retained.
-PersonaMem preparation keeps history cutoff, question/options and reference
-separate and groups all contexts/prefixes from one persona together. Synthetic
-behavior, source grounding and actual model semantics are reported separately;
-complete retrieval does not ensure correct role attribution in the answer.
-
-See [the initial comparisons](competition/results/RESULTS.md),
-[token diagnostics](competition/results/TOKEN_BUDGETS.md),
-[expanded development comparisons](competition/results/EXPANDED_DEV.md),
-[the separate output-cap experiment](competition/results/CAP500K_DEV.md),
-[calibrated local correctness](competition/results/CALIBRATED_LME60_DEV.json),
-[capability/data boundaries](competition/results/CAPABILITY_COVERAGE.json), and
-[dataset attribution](competition/public_data_manifest.json). Raw benchmark
-histories, source evidence, private retrieval outputs and credentials are excluded
-from publication and from the deployed inference package.
+The queuefix update permits HTTP queue waits up to 900 seconds with the selected
+600-second operation profile. It changes configuration validation only, not
+ranking, source packing, segmentation, embeddings, operation timing or slot
+release. Existing QA/retrieval caches retain their earlier semantic-source hash;
+source-version equivalence must not be inferred from ranking equality alone.

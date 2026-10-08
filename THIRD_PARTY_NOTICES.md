@@ -1,52 +1,31 @@
 # Third-party notices
 
-The repository-level MIT license covers the participant-authored MemCore source
-and accompanying original documentation. It does not relicense externally
-obtained models, datasets, libraries, upstream evaluator code or their underlying
-sources. No model weights, dependency wheels, dataset histories or vendored
-upstream implementation are included in this snapshot.
+The repository MIT license covers participant-authored MemCore source and
+original documentation. It does not relicense external models, datasets,
+libraries, upstream evaluators or their underlying sources. No external weights,
+datasets, dependency wheels or vendored upstream evaluator are included.
 
-## Retrieval methods and external models
+BM25, RRF and E5 are attributed in `METHOD.md`. The optional E5, BGE and Qwen
+research assets must be obtained separately at recorded revisions with their
+upstream licenses and model cards. Hosted embedding services have their own
+account/service terms. Python packages retain their original licenses.
 
-[METHOD.md](METHOD.md) attributes BM25 to Robertson and Zaragoza, reciprocal-rank
-fusion to Cormack, Clarke and Büttcher, and multilingual E5 to Wang and colleagues,
-with primary references and the pinned E5 revision. E5 is downloaded separately;
-retain its original license and model card when using or distributing it.
+`competition/public_data_manifest.json` and
+`competition/personamem_data_manifest.json` record public dataset references,
+versions, file checksums and attribution. These manifests contain no histories,
+questions or labels. LongMemEval's pinned repository/data declare MIT;
+underlying filler sources retain their separate terms. LoCoMo-Refined and
+adapted original LoCoMo use CC BY-NC 4.0 and must retain their upstream notices.
+The pinned PersonaMem-v1 card declares MIT. None becomes MIT-licensed merely by
+being used with MemCore.
 
-Offline research uses separately obtained Qwen3-32B and BGE reranker models.
-Their revisions and provenance are recorded in
-[LOCAL_LLM.md](competition/LOCAL_LLM.md) and the aggregate reports. Check and
-retain the upstream model licenses, cards and any notices at the exact revision;
-this project's MIT license makes no license grant for those assets. The same
-principle applies to optional Sentence Transformers, PyTorch, Transformers,
-NumPy, vLLM and tokenizers. Hosted text-embedding-v4 or other model services have
-their own account and service terms.
+AML public interface/evaluation documentation is referenced by the research
+harness. MemCore independently implements its service and local proxy harness;
+no upstream AML evaluator or verbatim prompt package is bundled. Local proxy
+metrics are separate from official AML results.
 
-## Public research datasets
-
-Data is obtained separately by the participant. Pinned download URLs, file
-checksums, citations, authors and license descriptions are recorded in
-[public_data_manifest.json](competition/public_data_manifest.json) and
-[personamem_data_manifest.json](competition/personamem_data_manifest.json).
-
-- LongMemEval's pinned repository and cleaned dataset declare MIT. Underlying
-  filler sources retain their separate terms; do not assume that a dataset-card
-  label overrides them.
-- LoCoMo-Refined and adapted original LoCoMo material use CC BY-NC 4.0. The local
-  preparation retains upstream LICENSE and NOTICE. That data is not distributed
-  by this repository and does not become MIT-licensed.
-- The pinned PersonaMem-v1 data card declares MIT. Preserve its upstream authors,
-  card and original license when obtaining or redistributing the dataset.
-
-Published result files contain aggregate metrics and provenance, not benchmark
-histories or question/reference corpora. Local raw-data and run artifacts are
-excluded. Source hashes do not provide access to the corresponding private files.
-
-## AML reference material
-
-The AML repository and official website are references for public interface and
-measurement contracts. MemCore's service and local evaluation harness were
-independently implemented; no upstream AML evaluator or verbatim prompt package
-is bundled. The pinned upstream reference commit is recorded in the data
-manifest. This repository's MIT license does not assert or change the upstream
-AML repository's license. Local proxy results are not official AML results.
+Historical public reports under `competition/results/` are retained unchanged
+from commit `544b72d51a49139512bdbeec2df1f3198780143f`. They contain aggregate
+metrics and provenance, not benchmark histories or question/reference corpora.
+Each records its own model/configuration and limitations; preservation does not
+apply old results to the current v4 configuration.

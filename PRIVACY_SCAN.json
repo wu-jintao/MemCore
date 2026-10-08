@@ -1,0 +1,78 @@
+{
+  "schema": "source-publication-privacy-scan-v1",
+  "source_version": "v1.1",
+  "snapshot_date": "2026-10-08",
+  "scope": "Explicit source whitelist, new source-release documentation, and exactly 19 previously published historical files pinned to the old public commit",
+  "passed": true,
+  "critical_findings": 0,
+  "forbidden_files": [],
+  "forbidden_content": [],
+  "symlinks": [],
+  "actual_deployment_address_present": false,
+  "private_environment_or_key_file_included": false,
+  "raw_corpus_gold_or_raw_run_artifacts_included": false,
+  "historical_public_aggregate_reports_included": true,
+  "historical_reports_count": 19,
+  "historical_reports_source_commit": "544b72d51a49139512bdbeec2df1f3198780143f",
+  "historical_reports_bytes_unchanged": true,
+  "historical_reports_interpretation": "Apply only to each original configuration; not current v4 QA, Smoke or Full",
+  "git_metadata_included": false,
+  "allowed_IP_literals": [
+    "1.1.1.1",
+    "127.0.0.1",
+    "127.0.0.2",
+    "192.0.2.1"
+  ],
+  "allowed_IP_interpretation": "Loopback operation/test/historical public local-profile examples, one RFC5737 negative endpoint fixture, and the previously published mocked public DNS-result address (never contacted, not a deployment service IP)",
+  "reviewed_false_positives": [
+    {
+      "file": "competition/eval_v4_budget_test.py",
+      "line": 292,
+      "classification": "synthetic invalid URL credential fixture, not personal contact"
+    },
+    {
+      "file": "test_semantic.py",
+      "line": 115,
+      "classification": "synthetic invalid URL credential fixture, not personal contact"
+    },
+    {
+      "file": "deploy/test_verify_public_api.py",
+      "classification": "Previously published mocked global DNS-result address; no network contact."
+    }
+  ],
+  "credential_literal_interpretation": "Only synthetic mock/test values; secret variable names and generic provider references remain in source",
+  "scan_rules": [
+    "Explicit source whitelist plus the exact old-HEAD 19-file public historical allowlist; no private runtime/result directory traversal",
+    "Reject credentials, databases, JSONL corpora, logs, caches, weights and Git metadata by path/type",
+    "Reject private machine/user/deployment paths and hosted service IP literals",
+    "Reject private-key blocks and common provider key shapes",
+    "Review contact/credential-in-URL matches as synthetic negative test fixtures",
+    "Verify every historical report against its old commit byte hash"
+  ],
+  "limitations": "Static review of the fixed source tree; no claims about future deployment or future added files. Historical public records remain unedited.",
+  "final_file_count": 79,
+  "model_api_calls": 0,
+  "credential_file_reads": 0,
+  "external_network_attempts": 0,
+  "syntax_and_json_valid": true,
+  "new_source_qa_or_official_results_claimed": false,
+  "source_variant": "v1.1-source-release",
+  "broken_relative_markdown_links": 0,
+  "http_queue_validation_max_seconds": 900,
+  "selected_operation_seconds": 600,
+  "qa_cache_semantic_sha256": "59163d78e889f8ae10ce4b63bba8b54fcfc4f5f6e5d00150160098bc5d1c0e50",
+  "new_core_and_deploy_tests_passed": 100,
+  "prepublication_review_parent_manifest_sha256": "c438a9d738f1b9606fc9462e7f5a4935f22333c7eb0c570326db05829e9a1f3a",
+  "review_basis": "The queuefix source, all Python/core and old public reports are unchanged; only publication wording and hash metadata changed. New document hashes are explicit.",
+  "release_document_sha256": {
+    "README.md": "b632cbc56b8ca71b0ed882c7834f799ecebc310648aca8f61a72a267cdb4d127",
+    "SOURCE_STATUS.md": "43aa3c16b41ac209636ced231569c0c07ff5b091d390f596db3d134b429850bd",
+    "VALIDATION.md": "e33f7fcd3336a58b77176b7e0b565fd6c37cf78f07bd7674cbe320a8e7858893"
+  },
+  "release_version": "v1.1",
+  "release_profile": {
+    "http_queue_seconds": 900,
+    "operation_seconds": 600
+  },
+  "code_and_historical_files_unchanged_from_reviewed_queuefix": true
+}
