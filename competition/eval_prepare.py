@@ -2,7 +2,7 @@
 """Prepare pinned PUBLIC upstream data; keep history, queries and grader gold separate.
 
 This is a newly authored proxy adapter, not AML orchestration or an official score.
-Only the Python standard library is needed. See results/EVALUATION.md for usage.
+Only the Python standard library is needed. See README.md in this directory for usage.
 """
 import argparse
 from collections import Counter, defaultdict
