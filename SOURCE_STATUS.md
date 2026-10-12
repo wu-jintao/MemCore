@@ -1,5 +1,11 @@
 # MemCore v1.1 source status
 
+This tree includes the October 10 query-capacity and transport recovery amendment described in
+[CAPACITY_RECOVERY.md](CAPACITY_RECOVERY.md). It is based on public commit
+`515be6c5c3a3806b1070f2bcc687d177c83d7a34`; organizer review of the amendment is
+pending. The October 8 release history and validation statements below describe
+the original source and are retained as historical provenance.
+
 MemCore v1.1 is the October 8, 2026 source release with the explicit HTTP
 deployment profile queue900/op600. `SOURCE_MANIFEST.json` fixes the complete
 release tree; `CORE_MANIFEST.json` fixes the minimal two-file inference package.
@@ -43,6 +49,11 @@ readiness or a deployment-source match. Those need separate completed records
 and an explicit source/configuration audit. Raw histories, questions/reference
 corpora, credentials, logs, retrieval outputs, private run artifacts and private
 operation scripts are excluded.
+
+The transport recovery amendment also adds bounded handling of incomplete
+HTTP reads. This changes transport failure/retry behavior while preserving
+embedding content and retrieval computations; it is not an execution of the
+original frozen source and requires separate organizer review.
 
 ## Queue-wait source update and cache provenance
 

@@ -1,5 +1,21 @@
 # MemCore v1.1 source validation
 
+## October 10 capacity and transport recovery amendment
+
+The amended `test_semantic`, `test_server` and new `test_query_capacity` suites
+passed 62 tests under Python 3.9.6. The seven focused recovery
+checks use synthetic text and stub vectors; core service tests use loopback
+HTTP mocks. A socket guard recorded zero non-loopback network attempts.
+No credential file, model API or evaluation input was used. These checks do
+not establish live deployment readiness, answer quality or organizer approval;
+review remains pending. Three transport mocks exercise truncated response
+reads, identical-batch retries, exhaustion without partial operation success,
+and remaining-deadline limits on read timeouts/backoff. The focused suite was
+also rerun after its old/new profile comparison explicitly included retries
+0 versus 2. See [CAPACITY_RECOVERY.md](CAPACITY_RECOVERY.md).
+
+## Original October 8 source validation history
+
 These local synthetic/unit/mock checks were completed on October 8, 2026,
 before publication of the v1.1 source release. They are not answer-quality
 validation, deployment activation or official AML evaluation. No real credential

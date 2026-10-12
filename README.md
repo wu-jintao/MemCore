@@ -1,5 +1,10 @@
 # MemCore v1.1
 
+This tree includes a [query-capacity and transport recovery amendment](CAPACITY_RECOVERY.md)
+dated October 10, 2026. Organizer review is pending; the amendment does not
+establish an approved scored version or official result. The October 8 source
+release description below is historical provenance.
+
 MemCore is a source-preserving Add/Search memory service. It stores original
 messages and synchronous SQLite indexes, then returns attributable evidence to
 an external answer system. The service does not generate final answers.

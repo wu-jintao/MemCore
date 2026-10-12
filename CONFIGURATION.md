@@ -18,8 +18,9 @@ Set the following nonsecret parameters explicitly:
 | MEMORY_EMBEDDING_DIMENSION | 2048 |
 | MEMORY_EMBEDDING_BATCH_SIZE | 10 |
 | MEMORY_EMBEDDING_CONCURRENCY | 1 |
-| MEMORY_EMBEDDING_HTTP_RETRIES | 0 |
+| MEMORY_EMBEDDING_HTTP_RETRIES | 2 (transport recovery amendment; original profile: 0) |
 | MEMORY_EMBEDDING_HTTP_SEGMENT_BYTES | 1536 |
+| MEMORY_EMBEDDING_MAX_QUERY_SEGMENTS | 128 (capacity recovery amendment; original profile: 8) |
 | MEMORY_EMBEDDING_QUERY_PREFIX | empty |
 | MEMORY_EMBEDDING_DOCUMENT_PREFIX | empty |
 | MEMORY_EMBEDDING_HTTP_TIMEOUT | 30 seconds |
@@ -51,6 +52,15 @@ The HTTP queue validator accepts at most 900 seconds; local/disabled backends
 retain the previous 300-second bound. Generic operation validation is unchanged
 (the module/helper still permit up to 1,500 seconds); the 1,500-second combined
 figure applies only when operators preserve this documented 600-second profile.
+
+The October 10 capacity recovery amendment changes the accepted query-segment
+configuration bound from 1..64 to 1..128 and explicitly selects 128 in this
+profile. The source default remains 8. See [CAPACITY_RECOVERY.md](CAPACITY_RECOVERY.md)
+for scope, compatibility, validation and pending organizer review. The transport
+recovery amendment handles `http.client.IncompleteRead` in the existing
+retryable network-error path and selects two bounded retries; the source
+default remains zero. Read timeouts, operation deadlines and backoff bounds
+remain unchanged.
 
 ## Dependencies
 

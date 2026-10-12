@@ -1,7 +1,7 @@
 {
   "schema": "memcore-source-release-manifest-v1",
   "release_version": "v1.1",
-  "snapshot_date": "2026-10-08",
+  "snapshot_date": "2026-10-10",
   "algorithm": "sha256",
   "runtime_core_files": [
     "server.py",
@@ -12,16 +12,17 @@
   "historical_reports_count": 19,
   "files": {
     ".gitignore": "22716ebb4e0368a1b67f73d7a728057eb5a17812599b77b31d2f6c9b59e6371e",
-    "CONFIGURATION.md": "ba57762c4e54dd4b1cfb3904b772ecfae17e22381f90f410d3310a3c7b19a45d",
-    "CORE_MANIFEST.json": "3183bac5b829f9c2636b64bdcbce6628d325a2b7c9be656073e436cc439bbee7",
+    "CAPACITY_RECOVERY.md": "18df5c310e019a03dc187c7415b88f6d3cb0803915c7891352013c6718366646",
+    "CONFIGURATION.md": "1e8ee6425b674f4504ed094581f935ac9672cfead02083a523895a1db4b4d262",
+    "CORE_MANIFEST.json": "b98adcb68e04c1ddb07b95c4d0d632d1235541cfb2856e3c67405d928ea4ffd2",
     "LICENSE": "cc72afd768fabad9352b19fbc2bd7766350c0ad76f31b4df5ffe6032e90e0828",
     "METHOD.md": "ed1764b31d2417b4abb3673ab16dec7f51c7c734fccabed205b3094069d1fc20",
-    "PRIVACY_SCAN.json": "e4f8f2d909aa2d08feb12331c352a2f3e64780444d7cf0087bde05b3b3b1395c",
-    "README.md": "b632cbc56b8ca71b0ed882c7834f799ecebc310648aca8f61a72a267cdb4d127",
-    "SNAPSHOT_DIFF.json": "646d3e8e5fde58deceff0b6c6afc9417540511dd16f8ae2c229cab1152a3f6d2",
-    "SOURCE_STATUS.md": "43aa3c16b41ac209636ced231569c0c07ff5b091d390f596db3d134b429850bd",
+    "PRIVACY_SCAN.json": "51335c5dfbeac6fed8b84c12c8d2e00c3534eeccac275730a03658d7d20706c9",
+    "README.md": "10cb5434ac1615f90dcb8dd5870cc2276f2f611cb67e8398a9ca9f21b67efa4d",
+    "SNAPSHOT_DIFF.json": "86a968e7674b95ebbc38ba40574e925c6e518a2ed74a2e4918ee9fcde8ed3497",
+    "SOURCE_STATUS.md": "89a8a5a8dcd0803ba85d02829968796eb4428cf0654e154d32eb2944adefcdd6",
     "THIRD_PARTY_NOTICES.md": "78c39bd0465414f560ef26cd3f4230b65586e60aa53d20bdaecac21cc62c8f37",
-    "VALIDATION.md": "e33f7fcd3336a58b77176b7e0b565fd6c37cf78f07bd7674cbe320a8e7858893",
+    "VALIDATION.md": "bd0c0a696d238ca964a9d15e4036231906ee3f717e94ceeb5916070d892fb1bd",
     "competition/README.md": "f4509c3f31b33acb18510b12eaeaab6654b07c5edf83836307cee00f268537ae",
     "competition/eval_answer.py": "10eeaf69b9613637ce2b250e4863bbdcd91e441ef26ab13d6a7886d0ff20bbfd",
     "competition/eval_answer_test.py": "afacd5a6a274e0add78bb37325224468f2dfd224b2062e6739fbb345485d7ccc",
@@ -85,21 +86,41 @@
     "requirements-research.txt": "11ef7a6784f2b0eb1c57939de2dd350a3173b00e93b0a40cc9fce2c01f59c391",
     "requirements-semantic-linux-python310.lock.txt": "91e571d9858ca9752002108804d1861efa9643692c919432811cfdee26c91109",
     "requirements-semantic.txt": "6955f3ff157a9f24ef90748214542249765f61eb03e26510235829840f97a361",
-    "semantic.py": "76fd9cca02beeaa8f8ef01ea367152734b9b695873182aca9b8acaa52f087bd3",
+    "semantic.py": "b85754a587f2fb72cec60614919672aa92ede000cb2bc061a07d7e58b5860226",
     "server.py": "c3bac1f1798d776ee6fb5c693a95e2843e198f61221bb09fdb9ede8a62fa8d56",
+    "test_query_capacity.py": "d550c7aa3a9c1e4b0df1a02ffd2f62d0d11181c507b279b5a1eacbfcc0463148",
     "test_semantic.py": "84def99d8dadcb419e4773991ce971011c48206eaeda931ac7c5814b433eb8d1",
     "test_server.py": "29691dfe80a2ae99bba2990e3360669d24a56aea30a23cdd41786edc57968991"
   },
-  "source_variant": "v1.1-http-queue900-op600",
+  "source_variant": "v1.1-http-queue900-op600-query128-retry2-recovery",
   "queuefix_parent_source_manifest_sha256": "192f5c6349dce37bcb4e549e786ab879665aea766987ad2943dc454999adc916",
   "runtime_core_sha256": {
     "server.py": "c3bac1f1798d776ee6fb5c693a95e2843e198f61221bb09fdb9ede8a62fa8d56",
-    "semantic.py": "76fd9cca02beeaa8f8ef01ea367152734b9b695873182aca9b8acaa52f087bd3"
+    "semantic.py": "b85754a587f2fb72cec60614919672aa92ede000cb2bc061a07d7e58b5860226"
   },
   "release_profile": {
     "http_queue_seconds": 900,
-    "operation_seconds": 600
+    "operation_seconds": 600,
+    "http_max_query_segments": 128,
+    "http_retries": 2
   },
   "prepublication_review_source_manifest_sha256": "c438a9d738f1b9606fc9462e7f5a4935f22333c7eb0c570326db05829e9a1f3a",
-  "source_checks_completed_before_publication": true
+  "source_checks_completed_before_publication": true,
+  "original_release_date": "2026-10-08",
+  "base_commit": "515be6c5c3a3806b1070f2bcc687d177c83d7a34",
+  "recovery_parent_source_manifest_sha256": "89b1a3e100fe6bcd1de4c013cd6abada86b9457c92901d4c997f7f465a9a2f82",
+  "recovery_amendment": {
+    "organizer_review": "pending",
+    "source_default_query_segments": 8,
+    "previous_deployment_query_segments": 8,
+    "selected_query_segments": 128,
+    "validation_bound_previous_max": 64,
+    "validation_bound_current_max": 128,
+    "does_not_establish_approved_scored_version": true,
+    "official_result_claimed": false,
+    "source_default_http_retries": 0,
+    "previous_deployment_http_retries": 0,
+    "selected_http_retries": 2,
+    "IncompleteRead_in_existing_retryable_network_path": true
+  }
 }

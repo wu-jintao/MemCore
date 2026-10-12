@@ -8,6 +8,7 @@ persists source messages together with all returned segment vectors.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from http.client import IncompleteRead
 import hashlib
 import heapq
 import itertools
@@ -78,7 +79,7 @@ class EmbeddingConfig:
             "dimension": (1, 8192), "batch_size": (1, 64), "threads": (1, 8),
             "concurrency": (1, 8), "segment_tokens": (16, 480),
             "max_document_segments": (1, 4096), "max_total_segments": (1, 16384),
-            "max_query_segments": (1, 64), "http_retries": (0, 2),
+            "max_query_segments": (1, 128), "http_retries": (0, 2),
             "http_segment_bytes": (32, 16384),
         }
         for name, (lower, upper) in bounds.items():
@@ -425,7 +426,7 @@ class HttpEmbeddingBackend(_Backend):
                 error.close()
                 if not retryable or attempt == self.config.http_retries:
                     raise EmbeddingError("Embedding service returned HTTP " + str(error.code)) from None
-            except (URLError, TimeoutError, OSError):
+            except (URLError, TimeoutError, OSError, IncompleteRead):
                 if attempt == self.config.http_retries:
                     raise EmbeddingError("Embedding service could not be reached") from None
             except (ValueError, UnicodeDecodeError, TypeError) as error:

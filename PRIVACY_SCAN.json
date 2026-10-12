@@ -1,8 +1,8 @@
 {
   "schema": "source-publication-privacy-scan-v1",
   "source_version": "v1.1",
-  "snapshot_date": "2026-10-08",
-  "scope": "Explicit source whitelist, new source-release documentation, and exactly 19 previously published historical files pinned to the old public commit",
+  "snapshot_date": "2026-10-10",
+  "scope": "October 10 public capacity-recovery changed-file review against the fixed public base commit; original-source audit preserved in Git.",
   "passed": true,
   "critical_findings": 0,
   "forbidden_files": [],
@@ -50,29 +50,59 @@
     "Verify every historical report against its old commit byte hash"
   ],
   "limitations": "Static review of the fixed source tree; no claims about future deployment or future added files. Historical public records remain unedited.",
-  "final_file_count": 79,
+  "final_file_count": 81,
   "model_api_calls": 0,
   "credential_file_reads": 0,
   "external_network_attempts": 0,
   "syntax_and_json_valid": true,
   "new_source_qa_or_official_results_claimed": false,
-  "source_variant": "v1.1-source-release",
+  "source_variant": "v1.1-http-queue900-op600-query128-retry2-recovery",
   "broken_relative_markdown_links": 0,
   "http_queue_validation_max_seconds": 900,
   "selected_operation_seconds": 600,
   "qa_cache_semantic_sha256": "59163d78e889f8ae10ce4b63bba8b54fcfc4f5f6e5d00150160098bc5d1c0e50",
-  "new_core_and_deploy_tests_passed": 100,
   "prepublication_review_parent_manifest_sha256": "c438a9d738f1b9606fc9462e7f5a4935f22333c7eb0c570326db05829e9a1f3a",
-  "review_basis": "The queuefix source, all Python/core and old public reports are unchanged; only publication wording and hash metadata changed. New document hashes are explicit.",
+  "review_basis": "One capacity-bound code line plus import/catch of IncompleteRead in the existing bounded network retry path, focused synthetic tests, technical disclosure and source/hash metadata; no private input artifacts copied.",
   "release_document_sha256": {
-    "README.md": "b632cbc56b8ca71b0ed882c7834f799ecebc310648aca8f61a72a267cdb4d127",
-    "SOURCE_STATUS.md": "43aa3c16b41ac209636ced231569c0c07ff5b091d390f596db3d134b429850bd",
-    "VALIDATION.md": "e33f7fcd3336a58b77176b7e0b565fd6c37cf78f07bd7674cbe320a8e7858893"
+    "README.md": "10cb5434ac1615f90dcb8dd5870cc2276f2f611cb67e8398a9ca9f21b67efa4d",
+    "SOURCE_STATUS.md": "89a8a5a8dcd0803ba85d02829968796eb4428cf0654e154d32eb2944adefcdd6",
+    "VALIDATION.md": "bd0c0a696d238ca964a9d15e4036231906ee3f717e94ceeb5916070d892fb1bd",
+    "CONFIGURATION.md": "1e8ee6425b674f4504ed094581f935ac9672cfead02083a523895a1db4b4d262",
+    "CAPACITY_RECOVERY.md": "18df5c310e019a03dc187c7415b88f6d3cb0803915c7891352013c6718366646"
   },
   "release_version": "v1.1",
   "release_profile": {
     "http_queue_seconds": 900,
     "operation_seconds": 600
   },
-  "code_and_historical_files_unchanged_from_reviewed_queuefix": true
+  "code_and_historical_files_unchanged_from_reviewed_queuefix": false,
+  "previous_scan_commit": "515be6c5c3a3806b1070f2bcc687d177c83d7a34",
+  "previous_scan_date": "2026-10-08",
+  "http_query_segment_validation_max": 128,
+  "selected_http_query_segments": 128,
+  "organizer_review": "pending",
+  "changed_file_review_paths": [
+    "semantic.py",
+    "test_query_capacity.py",
+    "README.md",
+    "CONFIGURATION.md",
+    "SOURCE_STATUS.md",
+    "CAPACITY_RECOVERY.md",
+    "VALIDATION.md",
+    "CORE_MANIFEST.json",
+    "SNAPSHOT_DIFF.json",
+    "PRIVACY_SCAN.json",
+    "SOURCE_MANIFEST.json"
+  ],
+  "oct08_core_and_deploy_tests_passed": 100,
+  "capacity_recovery_tests": {
+    "passed": 62,
+    "focused_new_tests": 7,
+    "environment": "Python 3.9.6",
+    "model_api_calls": 0,
+    "non_loopback_network_attempts": 0,
+    "assessment_inputs_used": false
+  },
+  "selected_http_retries": 2,
+  "incomplete_read_mock_tests": 3
 }

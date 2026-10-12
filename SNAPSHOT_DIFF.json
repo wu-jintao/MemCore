@@ -208,5 +208,24 @@
       "new_instant_mocks": 6,
       "environment": "Python 3.12.14"
     }
+  },
+  "record_scope": "Original October 8 snapshot differences retained as history; capacity_recovery describes the current amendment.",
+  "capacity_recovery": {
+    "date": "2026-10-10",
+    "base_commit": "515be6c5c3a3806b1070f2bcc687d177c83d7a34",
+    "core_semantic_sha256": "b85754a587f2fb72cec60614919672aa92ede000cb2bc061a07d7e58b5860226",
+    "core_server_unchanged": true,
+    "change": "Query-segment validation bound1..64->1..128 (default8 unchanged), profile selects128; transport catches IncompleteRead in existing bounded retry path, profile retries0->2 (default0 unchanged).",
+    "model_dimensions_segmentation_aggregation_retrieval_unchanged": true,
+    "vector_fingerprint_unchanged_with_same_profile": true,
+    "organizer_review": "pending",
+    "official_result_claimed": false,
+    "transport_retry_recovery": {
+      "incomplete_read_explicitly_retryable": true,
+      "selected_retries": 2,
+      "source_default_retries": 0,
+      "http_read_operation_queue_budgets_unchanged": true,
+      "partial_vectors_not_accepted": true
+    }
   }
 }
