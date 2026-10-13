@@ -66,16 +66,22 @@ class CodingCandidateTests(unittest.TestCase):
         self.assertEqual((paths["release"] / "app").stat().st_mode & 0o777, 0o755)
         self.assertEqual(list((paths["data"] / "db").iterdir()), [])
         unit = paths["unit"].read_text()
-        self.assertIn('"--port" "18082"', unit)
+        self.assertIn('"--port" "18083"', unit)
         self.assertIn('"--profile" "coding"', unit)
         self.assertIn('"--semantic-weight" "3.0"', unit)
         self.assertIn('"--coding-weight" "2.0"', unit)
+        self.assertIn('"--coding-dense-rerank-weight" "0.5"', unit)
         self.assertIn('"--coding-result-limit" "12"', unit)
         self.assertIn('"--coding-character-limit" "180000"', unit)
         self.assertIn('"--max-body-bytes" "134217728"', unit)
         self.assertIn("Restart=on-failure", unit)
         self.assertIn("RestartSec=5s", unit)
         self.assertIn("StartLimitBurst=10", unit)
+        self.assertIn("Description=Isolated MemCore Coding v1.1 candidate", unit)
+        state = json.loads((paths["config"] / "prepared.json").read_text())
+        self.assertEqual(state["dense_rerank_weight"], 0.5)
+        self.assertEqual(state["result_limit"], 12)
+        self.assertEqual(state["character_limit"], 180000)
         self.assertNotIn("reverse_proxy", unit)
         self.assertFalse(result["production_modified"])
         self.assertFalse(result["public_route_modified"])
@@ -116,7 +122,7 @@ class CodingCandidateTests(unittest.TestCase):
         ])
 
     def test_changed_source_environment_unit_or_app_permissions_blocks_start(self):
-        for kind in ("source", "environment", "unit", "permissions"):
+        for kind in ("source", "environment", "unit", "profile", "permissions"):
             with self.subTest(kind=kind):
                 run = self.args.run_id + "-" + kind
                 args = Namespace(**{**vars(self.args), "run_id": run})
@@ -124,6 +130,11 @@ class CodingCandidateTests(unittest.TestCase):
                 paths = self.layout.candidate(run)
                 if kind == "source": (paths["release"] / "app/server.py").write_text("changed")
                 elif kind == "environment": (paths["config"] / "model.env").write_bytes(self.model_raw.replace(b"synthetic-model-key", b"different-model-key"))
+                elif kind == "profile":
+                    state_path = paths["config"] / "prepared.json"
+                    state = json.loads(state_path.read_text())
+                    state["dense_rerank_weight"] = 0.0
+                    state_path.write_text(json.dumps(state))
                 else: paths["unit"].write_text(paths["unit"].read_text() + "\n# drift")
                 self.commands.clear()
                 with self.assertRaises(ValueError): candidate.manage("start", run, self.layout)

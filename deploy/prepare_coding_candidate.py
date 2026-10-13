@@ -25,7 +25,7 @@ from urllib.parse import urlsplit
 
 
 SOURCE_NAMES = ("coding.py", "server.py", "semantic.py")
-PORT = 18082
+PORT = 18083
 FIXED_MODEL_VALUES = {
     "MEMORY_EMBEDDING_PROVIDER": "http",
     "MEMORY_EMBEDDING_ALLOW_HTTP": "1",
@@ -191,12 +191,13 @@ def unit_text(paths, layout, venv):
         venv / "bin/python", app / "server.py", "--host", "127.0.0.1",
         "--port", str(PORT), "--db", database, "--context-radius", "0",
         "--semantic-weight", "3.0", "--profile", "coding",
-        "--coding-weight", "2.0", "--coding-result-limit", "12",
+        "--coding-weight", "2.0", "--coding-dense-rerank-weight", "0.5",
+        "--coding-result-limit", "12",
         "--coding-character-limit", "180000", "--max-body-bytes", "134217728",
     ]
     exec_start = " ".join(systemd_quote(value) for value in argv)
     return "\n".join([
-        "[Unit]", "Description=Isolated MemCore Coding v1 candidate",
+        "[Unit]", "Description=Isolated MemCore Coding v1.1 candidate",
         "After=network-online.target", "Wants=network-online.target",
         "StartLimitIntervalSec=300", "StartLimitBurst=10",
         "RequiresMountsFor=" + systemd_quote(paths["data"]), "", "[Service]",
@@ -209,7 +210,7 @@ def unit_text(paths, layout, venv):
         "Environment=HF_HUB_OFFLINE=1", "Environment=TRANSFORMERS_OFFLINE=1",
         "Environment=HF_DATASETS_OFFLINE=1", "Environment=TOKENIZERS_PARALLELISM=false",
         "Environment=OMP_NUM_THREADS=2", "Environment=MKL_NUM_THREADS=2",
-        "UnsetEnvironment=PYTHONPATH PYTHONHOME MEMORY_EMBEDDING_MODEL_DIR MEMORY_PROFILE MEMORY_CODING_WEIGHT MEMORY_CODING_RESULT_LIMIT MEMORY_CODING_CHARACTER_LIMIT",
+        "UnsetEnvironment=PYTHONPATH PYTHONHOME MEMORY_EMBEDDING_MODEL_DIR MEMORY_PROFILE MEMORY_CODING_WEIGHT MEMORY_CODING_DENSE_RERANK_WEIGHT MEMORY_CODING_RESULT_LIMIT MEMORY_CODING_CHARACTER_LIMIT",
         "ExecStart=" + exec_start,
         "Restart=on-failure", "RestartSec=5s", "TimeoutStopSec=60", "UMask=0077",
         "NoNewPrivileges=true", "PrivateTmp=true", "ProtectSystem=strict",
@@ -290,7 +291,8 @@ def prepare(args, layout=Layout()):
             "model_env_sha256": digest_bytes(model_raw),
             "settings_sha256": digest_bytes(settings), "unit_sha256": digest_bytes(unit),
             "port": PORT, "profile": "coding", "semantic_weight": 3.0,
-            "coding_weight": 2.0, "result_limit": 8, "character_limit": 120000,
+            "coding_weight": 2.0, "dense_rerank_weight": 0.5,
+            "result_limit": 12, "character_limit": 180000,
             "public_route_modified": False,
         }
         private_write(paths["config"] / "prepared.json",
@@ -315,6 +317,9 @@ def verify_prepared(run_id, layout=Layout()):
     state = json.loads(file_bytes(paths["config"] / "prepared.json", 65536))
     if state.get("prepared") is not True or state.get("run_id") != run_id \
             or state.get("port") != PORT or state.get("profile") != "coding" \
+            or state.get("semantic_weight") != 3.0 or state.get("coding_weight") != 2.0 \
+            or state.get("dense_rerank_weight") != 0.5 \
+            or state.get("result_limit") != 12 or state.get("character_limit") != 180000 \
             or state.get("public_route_modified") is not False:
         raise ValueError("Coding candidate preparation state is invalid")
     app = paths["release"] / "app"
