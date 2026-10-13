@@ -53,3 +53,22 @@ latencies as live embedding-inclusive latency. Correlated conversation questions
 body-only evidence recall and local Answer/Judge results remain distinct from
 official Overall and platform answer accuracy. This v1.1 source release makes no current v4 QA-completion or official
 evaluation claim.
+
+## Coding public proxy tools
+
+The Coding-profile tools use only separately downloaded public SWEContextBench
+Lite Parquet files pinned by `../CODING_PUBLIC_DATA_MANIFEST.json`.
+
+- `eval_coding_proxy.py` builds relevant/noisy retrieval proxies without models.
+- `cache_coding_embeddings.py` is dry-run by default; `--execute --env <private>`
+  encodes the fixed public proxy inputs into a private resumable cache.
+- `eval_coding_dense_proxy.py` scans BM25/Coding/Dense weights from cached public
+  vectors without model calls.
+- `eval_coding_service_proxy.py` replays the selected configuration through the
+  real `MemoryStore.add/search` path with cached vectors.
+- `verify_coding_runtime.py` performs bounded loopback concurrency, idempotency,
+  isolation, SIGKILL restart, and SQLite integrity checks with a synthetic backend.
+
+Raw Parquet files, vector caches, proxy databases, per-task outputs, credentials,
+and formal evaluation data are excluded from publication. The sanitized aggregate
+record is `../CODING_PUBLIC_PROXY_SUMMARY.json`.
