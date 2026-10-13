@@ -1,0 +1,137 @@
+{
+  "schema": "memcore-coding-v1.1-public-validation-v1",
+  "prepared_date": "2026-10-13",
+  "official_cambench_result": false,
+  "private_evaluation_inputs_used": false,
+  "aml_add_search_calls": 0,
+  "answer_or_judge_calls": 0,
+  "model_calls_during_selection_and_implementation_validation": 0,
+  "method": {
+    "name": "safe dense segment post-reranking",
+    "strategy": "maximum cosine across every query/document segment pair",
+    "rrf_weight": 0.5,
+    "selection_boundary": "only inside the evidence set already selected and character-packed by Coding v1",
+    "query_embedding_operations_per_search": 1,
+    "additional_embedding_operations_per_search": 0,
+    "document_vectors": "existing scoped stored vectors"
+  },
+  "public_benchmark": {
+    "name": "SWEContextBench",
+    "git_revision": "12ad6ab14e18e9378e1e293c9edbc3f7ce43d27b",
+    "git_archive_sha256": "7d28ffb66a443948af24f0980bb7ac02327510145864c7147430e5358b30623d",
+    "histories": 1007,
+    "tasks": 357,
+    "development_lite_tasks": 99,
+    "independent_validation_tasks": 258
+  },
+  "fixed_embedding_cache": {
+    "model": "text-embedding-v4",
+    "dimension": 2048,
+    "plan_sha256": "4713b8525fcbced6feda365e7799dded6fd2f1a24eb45703d158cc0f0c84094e",
+    "documents_sha256": "584b63f5e134b0032ad61d20add4b062623cee8782ca659cb089de012ed2cd27",
+    "queries_sha256": "c6475ad98ca47602781f2780b76f5ee288c8b30380fbedd4bfc3a9a96b3ac818",
+    "documents": 1007,
+    "queries": 357,
+    "combined_utf8_bytes": 8923247,
+    "combined_segments": 1776,
+    "raw_text_saved": false,
+    "credentials_saved": false
+  },
+  "independent_validation": {
+    "baseline": {
+      "count": 258,
+      "recall1": 0.7093023255813954,
+      "recall3": 0.8565891472868217,
+      "recall8": 0.9573643410852714,
+      "recall12": 0.9806201550387597,
+      "mrr": 0.8009077485821672,
+      "all_relevant_recall12": 0.9806201550387597,
+      "complete_relevant_tasks": 253,
+      "mean_returned": 11.996124031007753,
+      "mean_characters": 117422.63953488372
+    },
+    "candidate": {
+      "count": 258,
+      "recall1": 0.7209302325581395,
+      "recall3": 0.872093023255814,
+      "recall8": 0.9612403100775194,
+      "recall12": 0.9806201550387597,
+      "mrr": 0.8095794601608555,
+      "all_relevant_recall12": 0.9806201550387597,
+      "complete_relevant_tasks": 253,
+      "mean_returned": 11.996124031007753,
+      "mean_characters": 117422.63953488372
+    },
+    "delta": {
+      "recall1": 0.011627906976744096,
+      "recall3": 0.015503875968992276,
+      "recall8": 0.003875968992248069,
+      "recall12": 0.0,
+      "mrr": 0.00867171157868829,
+      "complete_relevant_tasks": 0,
+      "mean_characters": 0.0
+    }
+  },
+  "implementation_equivalence": {
+    "tasks": 357,
+    "formal_matches_independent_order": 357,
+    "selected_set_unchanged": 357,
+    "content_unchanged": 357,
+    "characters_unchanged": 357,
+    "baseline_matches_research": 357,
+    "candidate_matches_research": 357,
+    "duplicate_text_variant_checks": 6,
+    "duplicate_text_order_and_metrics_stable": true,
+    "database_quick_check": "ok"
+  },
+  "go_no_go": {
+    "decision": "GO",
+    "recall1_improved": true,
+    "mrr_improved": true,
+    "recall12_unchanged": true,
+    "complete_relevant_tasks_unchanged": true,
+    "mean_characters_unchanged": true
+  },
+  "limitations": [
+    "Public proxy retrieval metrics are not CAMBench or an AML official score.",
+    "No private evaluation question, raw evaluation request, user identifier, credential, answer call, or judge call was used."
+  ],
+  "cloud_loopback_validation": {
+    "checked_date": "2026-10-13",
+    "public_route_used": false,
+    "aml_calls": 0,
+    "bounded_probe": {
+      "planned": 30,
+      "completed": 30,
+      "succeeded": 30,
+      "failed": 0,
+      "concurrent_searches": 16,
+      "p50_seconds": 4.761333867005305,
+      "p95_seconds": 17.882454489008524
+    },
+    "multi_segment_query": {
+      "semantic_utf8_bytes": 10919,
+      "segments": 2,
+      "status": 200,
+      "returned": 12,
+      "seconds": 4.0015511339879595
+    },
+    "restart": {
+      "pid_changed": true,
+      "restart_counter_delta": 1,
+      "search_identical": true
+    },
+    "candidate_database": {
+      "messages": 33,
+      "vectors": 33,
+      "quick_check": "ok"
+    },
+    "public_coding_candidate_remained_empty": true,
+    "existing_services_remained_active": true,
+    "caddy_unchanged": true,
+    "limitations": [
+      "Bounded synthetic operational check; not Full-scale capacity certification.",
+      "No response body, user identifier, credential, host address, or private configuration is published."
+    ]
+  }
+}

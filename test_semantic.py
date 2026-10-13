@@ -195,9 +195,16 @@ class LocalBackendTests(unittest.TestCase):
         self.assertEqual(recovered, set(unique))
 
     def test_query_all_segments_are_mean_pooled_and_capacity_is_explicit(self):
-        vector = self.backend.embed_query("what changed " * 5)
+        vector, segments = self.backend.embed_query_segments("what changed " * 5)
+        self.assertGreater(len(segments), 1)
         self.assertEqual(len(vector), 384)
         self.assertAlmostEqual(sum(value * value for value in vector), 1)
+        expected = normalize_vector([
+            math.fsum(segment[index] for segment in segments) / len(segments)
+            for index in range(384)
+        ])
+        for actual, wanted in zip(vector, expected):
+            self.assertAlmostEqual(actual, wanted)
         self.assertTrue(all(value.startswith("query: ") for call in self.model.calls for value in call))
         with self.assertRaises(EmbeddingError):
             self.backend.embed_query("long" * 1000)

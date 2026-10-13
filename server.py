@@ -150,7 +150,8 @@ class MemoryStore:
 
     def __init__(self, db_path, semantic_backend=None, context_radius=1, semantic_weight=1.0,
                  context_grouping="reserved", profile="textual", coding_weight=1.4,
-                 coding_result_limit=8, coding_character_limit=120000):
+                 coding_dense_rerank_weight=0.0, coding_result_limit=8,
+                 coding_character_limit=120000):
         if (isinstance(semantic_weight, bool) or not isinstance(semantic_weight, (int, float))
                 or not math.isfinite(semantic_weight) or not 0 <= semantic_weight <= 4):
             raise ValueError("semantic_weight must be finite and from 0 through 4")
@@ -161,6 +162,16 @@ class MemoryStore:
         if (isinstance(coding_weight, bool) or not isinstance(coding_weight, (int, float))
                 or not math.isfinite(coding_weight) or not 0 <= coding_weight <= 4):
             raise ValueError("coding_weight must be finite and from 0 through 4")
+        if (isinstance(coding_dense_rerank_weight, bool)
+                or not isinstance(coding_dense_rerank_weight, (int, float))
+                or not math.isfinite(coding_dense_rerank_weight)
+                or not 0 <= coding_dense_rerank_weight <= 4):
+            raise ValueError("coding_dense_rerank_weight must be finite and from 0 through 4")
+        if coding_dense_rerank_weight > 0 and profile != "coding":
+            raise ValueError("coding_dense_rerank_weight requires the coding profile")
+        if coding_dense_rerank_weight > 0 and (semantic_backend is None
+                or not callable(getattr(semantic_backend, "embed_query_segments", None))):
+            raise ValueError("Coding dense reranking requires query segment embeddings")
         if type(coding_result_limit) is not int or not 1 <= coding_result_limit <= 100:
             raise ValueError("coding_result_limit must be from 1 through 100")
         if type(coding_character_limit) is not int or not 1000 <= coding_character_limit <= 500000:
@@ -169,6 +180,7 @@ class MemoryStore:
         self.context_grouping = context_grouping
         self.profile = profile
         self.coding_weight = float(coding_weight)
+        self.coding_dense_rerank_weight = float(coding_dense_rerank_weight)
         self.coding_result_limit = coding_result_limit
         self.coding_character_limit = coding_character_limit
         self.db_path = Path(db_path).resolve()
@@ -639,19 +651,67 @@ class MemoryStore:
         return sorted(scores.items(), key=lambda row: (
             -row[1], lexical_ranks.get(row[0], math.inf), row[0]))
 
+    def _dense_post_rerank(self, connection, payload, output, query_segments):
+        """Reorder Coding's already packed evidence set using segment-pair maxima."""
+        if self.coding_dense_rerank_weight <= 0 or len(output) < 2:
+            return output
+        from semantic import EmbeddingError, decode_vector, normalize_vector
+        try:
+            queries = tuple(normalize_vector(vector, self.semantic.dimension)
+                            for vector in query_segments)
+            if not queries:
+                raise EmbeddingError("Query segment embeddings are empty")
+            identities = [item["id"] for item in output]
+            rows = connection.execute(
+                "SELECT message_id, vector FROM vectors WHERE user_id=? AND fingerprint=? "
+                "AND message_id IN (" + ",".join("?" for _ in identities) + ") "
+                "ORDER BY message_id, segment_index",
+                (payload["user_id"], self.semantic.fingerprint, *identities),
+            )
+            documents = {identity: [] for identity in identities}
+            for row in rows:
+                documents[row["message_id"]].append(
+                    decode_vector(row["vector"], self.semantic.dimension))
+            if any(not documents[identity] for identity in identities):
+                raise EmbeddingError("Selected Coding evidence lacks segment embeddings")
+            dense_scores = {
+                identity: max(math.fsum(a * b for a, b in zip(query, document))
+                              for query in queries for document in documents[identity])
+                for identity in identities
+            }
+        except EmbeddingError as error:
+            raise UnavailableError("Coding dense reranking failed") from error
+        dense_order = sorted(identities, key=lambda identity: (-dense_scores[identity], identity))
+        dense_ranks = {identity: rank for rank, identity in enumerate(dense_order, 1)}
+        original_ranks = {identity: rank for rank, identity in enumerate(identities, 1)}
+        scores = {
+            identity: (1.0 / (60 + original_ranks[identity])
+                       + self.coding_dense_rerank_weight / (60 + dense_ranks[identity]))
+            for identity in identities
+        }
+        ranked = sorted(output, key=lambda item: (
+            -scores[item["id"]], original_ranks[item["id"]], item["id"]))
+        return [{**item, "score": float(scores[item["id"]])} for item in ranked]
+
     def search(self, payload):
         validate_search(payload)
         query_parts = [payload["query"]] + payload.get("options", [])
         if not any(part.strip() for part in query_parts):
             return {"data": []}
         query_vector = None
-        if self.semantic is not None and self.semantic_weight > 0:
+        query_segments = None
+        needs_query_embedding = (self.semantic_weight > 0
+                                 or self.coding_dense_rerank_weight > 0)
+        if self.semantic is not None and needs_query_embedding:
             from semantic import EmbeddingCapacityError, EmbeddingError
             try:
                 embedding_query = "\n".join(query_parts)
                 if self.profile == "coding":
                     embedding_query = coding.semantic_query(embedding_query)
-                query_vector = self.semantic.embed_query(embedding_query)
+                if self.coding_dense_rerank_weight > 0:
+                    query_vector, query_segments = self.semantic.embed_query_segments(embedding_query)
+                else:
+                    query_vector = self.semantic.embed_query(embedding_query)
             except EmbeddingCapacityError as error:
                 raise PayloadCapacityError(
                     "Query exceeds the declared semantic capacity; no successful acknowledgement") from error
@@ -663,7 +723,7 @@ class MemoryStore:
             candidate_limit = min(MAX_RETRIEVAL_CANDIDATES, max(128, payload["top_k"] * 4))
             lexical = self._lexical_candidates(connection, payload, candidate_limit)
             weighted_rankings = [(1.0, lexical)]
-            if query_vector is not None:
+            if query_vector is not None and self.semantic_weight > 0:
                 from semantic import EmbeddingError, rank_vectors
                 rows = connection.execute("""
                     SELECT message_id, vector FROM vectors WHERE user_id=? AND fingerprint=?
@@ -719,6 +779,9 @@ class MemoryStore:
                 # context; skip it later only after its full text was returned.
                 # The default reserved mode keeps all selected anchors separate.
                 emitted_sources.update(pending_sources)
+            if self.profile == "coding" and self.coding_dense_rerank_weight > 0:
+                output = self._dense_post_rerank(
+                    connection, payload, output, query_segments)
             return {"data": output}
         finally:
             connection.close()
@@ -909,6 +972,8 @@ def main():
                         help="textual preserves the published v1.1 behavior; coding adds deterministic engineering feature retrieval")
     parser.add_argument("--coding-weight", type=float,
                         default=float(os.environ.get("MEMORY_CODING_WEIGHT", "1.4")))
+    parser.add_argument("--coding-dense-rerank-weight", type=float,
+                        default=float(os.environ.get("MEMORY_CODING_DENSE_RERANK_WEIGHT", "0.0")))
     parser.add_argument("--coding-result-limit", type=int,
                         default=int(os.environ.get("MEMORY_CODING_RESULT_LIMIT", "8")))
     parser.add_argument("--coding-character-limit", type=int,
@@ -938,6 +1003,7 @@ def main():
         store = MemoryStore(args.db, semantic_backend=backend, context_radius=args.context_radius,
                             semantic_weight=args.semantic_weight, context_grouping=args.context_grouping,
                             profile=args.profile, coding_weight=args.coding_weight,
+                            coding_dense_rerank_weight=args.coding_dense_rerank_weight,
                             coding_result_limit=args.coding_result_limit,
                             coding_character_limit=args.coding_character_limit)
     except (EmbeddingConfigError, ValueError) as error:

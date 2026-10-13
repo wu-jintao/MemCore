@@ -1,7 +1,7 @@
 {
   "files": {
     "coding.py": "251680cb1e8fd6123ee20e8f57675ce2f57989ffc5828edae6078179068cf562",
-    "server.py": "b877241852fe6d74af87d02a14afd5a87373a1ed773034f709af8a11fb72d97c",
-    "semantic.py": "b85754a587f2fb72cec60614919672aa92ede000cb2bc061a07d7e58b5860226"
+    "server.py": "a95d48aa1a63c91c65571fe071178f3af437da9f870b563a0b9ba94b691acb4f",
+    "semantic.py": "7b53ef0dade3581d83baff47d236e101c95d6c8235233f7190faf9939f2c9f1f"
   }
 }

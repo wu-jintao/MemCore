@@ -1,8 +1,9 @@
-# MemCore Coding v1 configuration
+# MemCore Coding v1.1 configuration
 
 The formal Coding candidate uses a fresh database, an isolated loopback service,
 and private environment files. Credentials and deployment addresses are never
-included in the public source.
+included in the public source. The dense post-reranker defaults to disabled in
+the generic server; the reviewed Coding v1.1 deployment enables it explicitly.
 
 | Variable / flag | Fixed value |
 | --- | --- |
@@ -10,6 +11,7 @@ included in the public source.
 | `--context-radius` | `0` |
 | `--semantic-weight` | `3.0` |
 | `MEMORY_CODING_WEIGHT` | `2.0` |
+| `MEMORY_CODING_DENSE_RERANK_WEIGHT` | `0.5` |
 | `MEMORY_CODING_RESULT_LIMIT` | `12` |
 | `MEMORY_CODING_CHARACTER_LIMIT` | `180000` |
 | `--max-body-bytes` | `134217728` (128 MiB; Coding candidate only) |
@@ -28,11 +30,17 @@ included in the public source.
 | `MEMORY_EMBEDDING_QUEUE_TIMEOUT` | `900` seconds |
 | process recovery | systemd `Restart=on-failure`, 5-second delay, bounded start rate |
 
-No generative language model is called by Add or Search. `text-embedding-v4` is
-used only to index and rank source-derived representations; final answer generation
-is owned by the fixed AML evaluation workflow.
+Add and Search call no generative model. `text-embedding-v4` indexes and ranks
+source-derived representations; final answer generation is owned by the fixed
+AML evaluation workflow.
 
-The 8192-byte windows preserve every UTF-8 source character. The deterministic
-Coding semantic representation is at most about 16 KB in the public proxy, so it
-uses at most two complete segments there. Formal capacity tests must still verify
-the actual platform payload distribution before Full.
+One bounded query embedding operation returns both the normalized segment mean
+used by the original dense channel and the normalized source segments used by
+the v1.1 post-reranker. The post-reranker makes no additional model request. It
+reads only the stored vectors for evidence already selected by v1 and reorders
+that exact set with a 0.5-weight reciprocal-rank term based on the maximum cosine
+across every query/document segment pair.
+
+The 8192-byte windows preserve every UTF-8 source character. Query and document
+segment bounds remain unchanged from Coding v1. The reranker changes neither the
+12-item result ceiling nor the 180,000-character whole-evidence budget.

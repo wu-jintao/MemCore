@@ -206,11 +206,22 @@ class _Backend:
         """Return one list of segment vectors per input; fail the whole call."""
         return self._embed(texts, query=False)
 
+    def embed_query_segments(self, text):
+        """Return the normalized query mean and its normalized source segments.
+
+        Both values come from one bounded embedding operation. Coding can reuse
+        the segments for post-selection ranking without another model request.
+        """
+        vectors = tuple(self._embed([text], query=True)[0])
+        mean = normalize_vector(tuple(
+            math.fsum(vector[index] for vector in vectors) / len(vectors)
+            for index in range(self.dimension)
+        ), self.dimension)
+        return mean, vectors
+
     def embed_query(self, text):
         """Long queries use a normalized mean of all bounded query segments."""
-        vectors = self._embed([text], query=True)[0]
-        return normalize_vector(tuple(math.fsum(v[index] for v in vectors) / len(vectors)
-                                      for index in range(self.dimension)), self.dimension)
+        return self.embed_query_segments(text)[0]
 
     def _embed(self, texts, query):
         if not isinstance(texts, (list, tuple)) or any(not isinstance(text, str) or not text.strip() for text in texts):

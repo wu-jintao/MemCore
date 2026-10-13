@@ -95,6 +95,37 @@ class CaptureEmbeddingBackend:
         return (1.0, 0.0, 0.0)
 
 
+class DenseRerankBackend:
+    fingerprint = "dense-rerank-synthetic-v1"
+    dimension = 3
+
+    def __init__(self):
+        self.query_operations = 0
+
+    def embed_documents(self, texts):
+        output = []
+        for text in texts:
+            marker = text.split("candidate-", 1)[1][:2]
+            index = int(marker)
+            if index == 0:
+                vector = (1.0, 0.0, 0.0)
+            elif index == 1:
+                vector = (0.0, 1.0, 0.0)
+            else:
+                vector = (1.0, (12 - index) / 10, 0.0)
+            output.append([vector])
+        return output
+
+    def embed_query_segments(self, text):
+        self.query_operations += 1
+        segments = ((0.0, 1.0, 0.0), (0.0, 0.99, 0.1))
+        mean = (0.0, 0.998733495, 0.050313074)
+        return mean, segments
+
+    def embed_query(self, text):
+        raise AssertionError("Dense reranking must reuse embed_query_segments")
+
+
 class CodingRetrievalTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="coding-memory-", dir=ROOT)
@@ -131,6 +162,75 @@ class CodingRetrievalTests(unittest.TestCase):
         self.assertIn("Engineering memory for reuse", backend.documents[0])
         self.assertIn("Software engineering task", backend.queries[0])
         self.assertIn(raw, found[0]["content"])
+
+    def test_dense_post_rerank_reorders_only_the_packed_set_with_one_query_operation(self):
+        backend = DenseRerankBackend()
+        path = Path(self.temp.name) / "dense-rerank.db"
+        baseline = server.MemoryStore(
+            path, semantic_backend=backend, context_radius=0, profile="coding",
+            semantic_weight=0.0, coding_weight=0.0,
+            coding_dense_rerank_weight=0.0, coding_result_limit=13,
+            coding_character_limit=500000,
+        )
+        names = ["candidate-" + str(index).zfill(2) for index in range(13)]
+        for name in names:
+            baseline.add({
+                "request_id": name, "user_id": "dense-user", "session_id": name,
+                "messages": [{"role": "assistant", "content": name + " synthetic evidence"}],
+            })
+        with sqlite3.connect(path) as connection:
+            rows = list(connection.execute(
+                "SELECT request_id,id,role,content,user_id,session_id,request_id,message_index,"
+                "source_timestamp_ms,ingested_at_ms,doc_length,sequence FROM messages "
+                "WHERE user_id='dense-user' ORDER BY request_id"))
+            identities = {row[0]: row[1] for row in rows}
+            connection.row_factory = sqlite3.Row
+            documents = list(connection.execute(
+                "SELECT * FROM messages WHERE user_id='dense-user' ORDER BY request_id"))
+        baseline.coding_character_limit = sum(
+            len(server.MemoryStore._evidence(document)) for document in documents[:12])
+        fixed = [(identities[name], len(names) - index)
+                 for index, name in enumerate(names)]
+        payload = {"query": "synthetic segmented query", "user_id": "dense-user", "top_k": 100}
+        original = baseline._lexical_candidates
+        baseline._lexical_candidates = lambda connection, value, limit: fixed
+        try:
+            before = baseline.search(payload)["data"]
+        finally:
+            baseline._lexical_candidates = original
+        self.assertEqual(backend.query_operations, 0)
+        self.assertEqual([item["id"] for item in before],
+                         [identities[name] for name in names[:12]])
+
+        candidate = server.MemoryStore(
+            path, semantic_backend=backend, context_radius=0, profile="coding",
+            semantic_weight=0.0, coding_weight=0.0,
+            coding_dense_rerank_weight=0.5, coding_result_limit=13,
+            coding_character_limit=baseline.coding_character_limit,
+        )
+        original = candidate._lexical_candidates
+        candidate._lexical_candidates = lambda connection, value, limit: fixed
+        try:
+            after = candidate.search(payload)["data"]
+        finally:
+            candidate._lexical_candidates = original
+        self.assertEqual(backend.query_operations, 1)
+        self.assertEqual(after[0]["id"], identities["candidate-01"])
+        self.assertEqual({item["id"] for item in before}, {item["id"] for item in after})
+        self.assertEqual({item["id"]: item["content"] for item in before},
+                         {item["id"]: item["content"] for item in after})
+        self.assertNotIn(identities["candidate-12"], {item["id"] for item in after})
+        self.assertEqual(sum(len(item["content"]) for item in before),
+                         sum(len(item["content"]) for item in after))
+
+    def test_dense_post_rerank_requires_coding_segment_backend(self):
+        path = Path(self.temp.name) / "invalid-dense-rerank.db"
+        with self.assertRaisesRegex(ValueError, "requires the coding profile"):
+            server.MemoryStore(path, semantic_backend=CaptureEmbeddingBackend(),
+                               coding_dense_rerank_weight=0.5)
+        with self.assertRaisesRegex(ValueError, "query segment embeddings"):
+            server.MemoryStore(path, semantic_backend=CaptureEmbeddingBackend(),
+                               profile="coding", coding_dense_rerank_weight=0.5)
 
     def test_cross_user_embedding_cache_reuses_vectors_without_cross_scope_search(self):
         backend = CaptureEmbeddingBackend()

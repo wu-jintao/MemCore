@@ -1,70 +1,76 @@
-# MemCore Coding v1
+# MemCore Coding v1.1
 
 MemCore Coding is an isolated Coding Memory profile for the AML `coding-v1`
-contract. It preserves the proven synchronous Add/Search persistence, complete
-user isolation, request-ID idempotency, SQLite/WAL storage, BM25, dense vector
-retrieval, and reciprocal-rank fusion used by MemCore Textual, while adding
-engineering-specific retrieval channels.
+contract. It preserves synchronous Add/Search persistence, complete user
+isolation, request-ID idempotency, SQLite/WAL storage, compact engineering BM25,
+engineering feature retrieval, dense vector retrieval, and weighted reciprocal-
+rank fusion. Coding v1.1 adds a safe dense segment post-reranker after evidence
+selection and character packing.
 
 The Coding profile is enabled only with `MEMORY_PROFILE=coding`. The default
 `textual` profile retains the published MemCore v1.1 behavior. The Coding
 candidate uses a fresh database and an independent deployment; it does not read,
 modify, migrate, or route the Textual evaluation database.
 
-## Retrieval channels
+## Retrieval pipeline
 
 1. **Compact engineering BM25.** Raw source evidence remains stored unchanged.
-   BM25 indexes a deterministic source-derived representation containing the task
-   description, changed files and diff lines, tests, exceptions, task type, and
-   bounded engineering features. This avoids indexing repeated unchanged patch
-   context while retaining identifiers needed for repository work.
+   BM25 indexes a deterministic representation containing the task description,
+   changed files and diff lines, tests, exceptions, task type, and bounded
+   engineering features.
 2. **Coding feature retrieval.** A compact SQLite index stores repository-relative
    paths, qualified symbols, exceptions, test identifiers, commands, task intent,
    root-cause markers, patch markers, and verification signals. Query confidence
-   dampens this channel for broad environment dumps and indirect task relations.
+   dampens this channel for broad environment dumps and indirect relations.
 3. **Dense engineering retrieval.** `text-embedding-v4` embeds deterministic
-   compact engineering representations. Raw source text is still returned to the
-   AML Coding agent. Complete UTF-8 inputs are segmented without truncation.
-4. **Content-addressed embedding reuse.** Coding document vectors are cached by
-   the fixed semantic fingerprint and exact compact-representation SHA-256. The
-   cache stores no source text and never participates directly in Search. Every
-   user still receives independent scoped vector rows; identical histories across
-   relevant/noisy attempts avoid repeated model calls without weakening isolation.
-5. **Weighted RRF.** Lexical weight is 1.0, the Coding feature weight is 2.0
-   before query-confidence scaling, and the dense weight is 3.0. The public proxy
-   selected these weights by high-noise Recall@1/MRR before average metrics.
+   compact engineering representations. Complete UTF-8 inputs are segmented
+   without truncation, while raw source text is returned to the Coding agent.
+4. **Content-addressed document-vector reuse.** Identical compact representations
+   reuse vectors by semantic fingerprint and SHA-256. Every user still receives
+   independently scoped vector rows, and Search always filters by the complete
+   requested user ID.
+5. **Primary weighted RRF.** Lexical weight is 1.0, Coding feature weight is 2.0
+   before confidence scaling, and dense weight is 3.0.
+6. **Safe dense segment post-reranking.** V1 first selects and packs at most 12
+   complete evidence items under the 180,000-character budget. V1.1 then reorders
+   only that fixed set. Dense rank uses the maximum cosine across every query
+   segment and every stored document segment; a 0.5-weight reciprocal-rank term
+   is fused with the original selected order. The evidence set, source content,
+   count, and character total cannot change at this stage.
 
-Search returns at most twelve complete source evidence items and stops only at a
-whole-item boundary before 180,000 characters. It does not summarize or generate
-the final answer, patch, or code solution.
+The query mean and original query segments come from one embedding operation.
+The reranker makes no second model request and stores no new vectors. Search does
+not summarize or generate the final answer, patch, or code solution.
 
-## Public proxy evidence
+## Public evidence
 
-The scored CAMBench Coding data is private and was not inspected. Development
-used the public SWEContextBench Lite experience/related/relationship files as a
-proxy for retrieval of reusable engineering experience under relevant/noisy
-conditions. At 96 adversarial distractors per target, the real MemoryStore
-Add/Search path achieved:
+The scored CAMBench Coding data is private and was not inspected. Method
+selection used public SWEContextBench Lite tasks; the remaining public Full tasks
+were held out for one-shot validation. On 258 independent validation tasks:
 
-- Recall@1: 76.77%
-- Recall@3: 87.88%
-- Recall@8: 96.97%
-- Recall@12: 97.98%
-- MRR: 83.07%
-- Mean returned evidence: about 103K characters
+| Metric | Coding v1 | Coding v1.1 |
+| --- | ---: | ---: |
+| Recall@1 | 70.93% | **72.09%** |
+| Recall@3 | 85.66% | **87.21%** |
+| Recall@8 | 95.74% | **96.12%** |
+| Recall@12 | 98.06% | **98.06%** |
+| MRR | 80.09% | **80.96%** |
+| Tasks with all related experience returned | 253/258 | **253/258** |
+| Mean returned characters | 117,422.64 | **117,422.64** |
 
-These are public proxy retrieval metrics, not an official CAMBench score and not
-a claim about Coding-agent task resolution. A cached-vector output-budget comparison
-used the same 99 high-noise public tasks: moving from 8 / 120,000 characters to
-12 / 180,000 recovered all public relevant experiences for two additional tasks
-(95/99 versus 93/99) while keeping mean returned content near 103K characters.
-Larger limits added substantially more distractors, so the fixed candidate stops at 12.
+A formal implementation replay covered all 357 public Full tasks. For every task,
+the service order matched an independent formula implementation, and the selected
+ID set, raw content, returned count, and character total matched v1. Duplicate
+query-text caches with small numerical variation produced identical order and
+metrics. These are public proxy retrieval results, not an official CAMBench or
+AML score.
 
 ## Capacity and integrity
 
-A 9,604-message, 96-distractor public proxy database used about 349 MB after
-compact index changes, versus 1.28 GB for the first prototype. The real HTTP
-runtime passed 16 concurrent Add, 16 concurrent Search, 32 concurrent identical
-Add retries, complete-user isolation, deterministic results, SIGKILL restart,
-and SQLite `quick_check` recovery using a deterministic synthetic 2048-dimensional
-backend. No model or non-loopback call was made by that runtime verification.
+The v1 database and vector schema are unchanged. The reranker reads at most the
+stored segment vectors for the already packed evidence items, so it adds no index,
+no migration, and no extra persistent storage. Existing 128 MiB authenticated
+request handling, bounded embedding queues, process restart controls, idempotency,
+and user isolation remain in force. A fresh loopback-only v1.1 candidate passed
+30/30 bounded real-model requests, a two-segment query, and controlled restart
+recovery without changing the public route.
