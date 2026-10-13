@@ -29,3 +29,13 @@ from commit `544b72d51a49139512bdbeec2df1f3198780143f`. They contain aggregate
 metrics and provenance, not benchmark histories or question/reference corpora.
 Each records its own model/configuration and limitations; preservation does not
 apply old results to the current v4 configuration.
+
+## Coding public proxy
+
+Coding-profile retrieval development references SWE-ContextBench by Jiayuan Zhang
+et al. (arXiv:2602.08316) and its public `jiayuanz3/SWEContextBench` dataset card,
+which declares MIT. The dataset is not bundled. `CODING_PUBLIC_DATA_MANIFEST.json`
+records the observed public revisions, URLs, sizes, and SHA-256 values used for the
+SWEContextBench Lite proxy. Its upstream tasks derive from SWE-Bench-family source
+repositories and retain their own project histories and terms. Public proxy
+metrics are retrieval diagnostics only and are not CAMBench data or AML scores.

@@ -19,6 +19,8 @@ import time
 import unicodedata
 from urllib.parse import urlsplit
 
+import coding
+
 
 DEFAULT_DB = Path(__file__).resolve().parent / ".local" / "memory.sqlite3"
 MAX_BODY_BYTES = 8 * 1024 * 1024
@@ -147,14 +149,28 @@ class MemoryStore:
     """
 
     def __init__(self, db_path, semantic_backend=None, context_radius=1, semantic_weight=1.0,
-                 context_grouping="reserved"):
+                 context_grouping="reserved", profile="textual", coding_weight=1.4,
+                 coding_result_limit=8, coding_character_limit=120000):
         if (isinstance(semantic_weight, bool) or not isinstance(semantic_weight, (int, float))
                 or not math.isfinite(semantic_weight) or not 0 <= semantic_weight <= 4):
             raise ValueError("semantic_weight must be finite and from 0 through 4")
         if type(context_grouping) is not str or context_grouping not in ("reserved", "emitted"):
             raise ValueError("context_grouping must be reserved or emitted")
+        if profile not in ("textual", "coding"):
+            raise ValueError("profile must be textual or coding")
+        if (isinstance(coding_weight, bool) or not isinstance(coding_weight, (int, float))
+                or not math.isfinite(coding_weight) or not 0 <= coding_weight <= 4):
+            raise ValueError("coding_weight must be finite and from 0 through 4")
+        if type(coding_result_limit) is not int or not 1 <= coding_result_limit <= 100:
+            raise ValueError("coding_result_limit must be from 1 through 100")
+        if type(coding_character_limit) is not int or not 1000 <= coding_character_limit <= 500000:
+            raise ValueError("coding_character_limit must be from 1000 through 500000")
         self.semantic_weight = float(semantic_weight)
         self.context_grouping = context_grouping
+        self.profile = profile
+        self.coding_weight = float(coding_weight)
+        self.coding_result_limit = coding_result_limit
+        self.coding_character_limit = coding_character_limit
         self.db_path = Path(db_path).resolve()
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.semantic = semantic_backend
@@ -231,6 +247,50 @@ class MemoryStore:
                     name TEXT PRIMARY KEY
                 );
             """)
+            if self.profile == "coding":
+                connection.executescript("""
+                    CREATE TABLE IF NOT EXISTS code_documents (
+                        message_sequence INTEGER PRIMARY KEY REFERENCES messages(sequence),
+                        quality REAL NOT NULL
+                    );
+                    CREATE TABLE IF NOT EXISTS code_features (
+                        feature TEXT NOT NULL COLLATE BINARY,
+                        message_sequence INTEGER NOT NULL REFERENCES messages(sequence),
+                        weight INTEGER NOT NULL,
+                        PRIMARY KEY (feature, message_sequence)
+                    ) WITHOUT ROWID;
+                    CREATE TABLE IF NOT EXISTS coding_postings (
+                        term TEXT NOT NULL COLLATE BINARY,
+                        message_sequence INTEGER NOT NULL REFERENCES messages(sequence),
+                        frequency INTEGER NOT NULL,
+                        PRIMARY KEY (term, message_sequence)
+                    ) WITHOUT ROWID;
+                    CREATE TABLE IF NOT EXISTS coding_embedding_cache (
+                        fingerprint TEXT NOT NULL COLLATE BINARY,
+                        content_sha256 TEXT NOT NULL COLLATE BINARY,
+                        segment_index INTEGER NOT NULL,
+                        dimension INTEGER NOT NULL,
+                        vector BLOB NOT NULL,
+                        PRIMARY KEY (fingerprint, content_sha256, segment_index)
+                    ) WITHOUT ROWID;
+                """)
+                code_columns = [row[1] for row in connection.execute(
+                    "PRAGMA table_info(code_features)")]
+                posting_columns = [row[1] for row in connection.execute(
+                    "PRAGMA table_info(coding_postings)")]
+                cache_columns = [row[1] for row in connection.execute(
+                    "PRAGMA table_info(coding_embedding_cache)")]
+                if code_columns != ["feature", "message_sequence", "weight"] \
+                        or posting_columns != ["term", "message_sequence", "frequency"] \
+                        or cache_columns != ["fingerprint", "content_sha256", "segment_index", "dimension", "vector"]:
+                    raise ValueError("Existing Coding database uses an incompatible index schema; use a fresh database")
+                coding_marker = connection.execute(
+                    "SELECT 1 FROM schema_migrations WHERE name=?", ("coding-postings-v1",)).fetchone()
+                cache_marker = connection.execute(
+                    "SELECT 1 FROM schema_migrations WHERE name=?", ("coding-embedding-cache-v1",)).fetchone()
+                existing_coding_messages = connection.execute("SELECT 1 FROM messages LIMIT 1").fetchone()
+                if existing_coding_messages and (not coding_marker or not cache_marker):
+                    raise ValueError("Existing Coding database lacks a current Coding index marker; use a fresh database")
             # Upgrade pre-scoped databases atomically. New inserts use postings;
             # the legacy terms table is kept only as a migration source.
             connection.execute("BEGIN IMMEDIATE")
@@ -252,6 +312,12 @@ class MemoryStore:
                 """)
                 connection.execute("INSERT INTO schema_migrations VALUES (?)",
                                    ("scoped-postings-v1",))
+            if self.profile == "coding" and not connection.execute(
+                    "SELECT 1 FROM schema_migrations WHERE name=?", ("coding-postings-v1",)).fetchone():
+                connection.execute("INSERT INTO schema_migrations VALUES (?)", ("coding-postings-v1",))
+            if self.profile == "coding" and not connection.execute(
+                    "SELECT 1 FROM schema_migrations WHERE name=?", ("coding-embedding-cache-v1",)).fetchone():
+                connection.execute("INSERT INTO schema_migrations VALUES (?)", ("coding-embedding-cache-v1",))
             if self.semantic is not None:
                 # A switched model or incomplete old database must not quietly
                 # present itself as a completely indexed semantic submission.
@@ -285,6 +351,12 @@ class MemoryStore:
         return {"success": True, "request_id": payload["request_id"],
                 "user_id": payload["user_id"], "session_id": payload["session_id"]}
 
+    def _request_record(self, payload):
+        serialized = _canonical_json(payload)
+        if self.profile == "coding":
+            return "sha256:" + hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+        return serialized
+
     @staticmethod
     def _existing(connection, scope, serialized):
         existing = connection.execute(
@@ -295,7 +367,7 @@ class MemoryStore:
 
     def add(self, payload):
         validate_add(payload)
-        serialized = _canonical_json(payload)
+        serialized = self._request_record(payload)
         scope = (payload["user_id"], payload["request_id"])
         connection = self._connect()
         try:
@@ -309,18 +381,64 @@ class MemoryStore:
         for index, message in enumerate(payload["messages"]):
             identity = json.dumps(list(scope) + [index], ensure_ascii=False,
                                   separators=(",", ":")).encode("utf-8")
+            code_features = coding.extract_features(message["content"]) if self.profile == "coding" else None
+            lexical_text = (coding.semantic_document(message["content"])
+                            if self.profile == "coding" else message["content"])
             prepared.append(("msg_" + hashlib.sha256(identity).hexdigest(),
-                             Counter(lexical_tokens(message["content"]))))
+                             Counter(lexical_tokens(lexical_text)), code_features))
         document_vectors = None
+        cache_hashes = None
+        cache_misses = {}
         if self.semantic is not None:
             from semantic import EmbeddingCapacityError, EmbeddingError, encode_vector, normalize_vector
             try:
-                document_vectors = self.semantic.embed_documents(
-                    [message["content"] for message in payload["messages"]])
-                if len(document_vectors) != len(prepared) or any(not row for row in document_vectors):
-                    raise EmbeddingError("Embedding backend returned incomplete document vectors")
-                document_vectors = [[encode_vector(normalize_vector(vector, self.semantic.dimension))
-                                     for vector in row] for row in document_vectors]
+                embedding_texts = [message["content"] for message in payload["messages"]]
+                if self.profile == "coding":
+                    embedding_texts = [coding.semantic_document(text) for text in embedding_texts]
+                    cache_hashes = [hashlib.sha256(text.encode("utf-8")).hexdigest()
+                                    for text in embedding_texts]
+                    cached = {}
+                    connection = self._connect()
+                    try:
+                        for start in range(0, len(set(cache_hashes)), 400):
+                            batch = sorted(set(cache_hashes))[start:start + 400]
+                            rows = connection.execute(
+                                "SELECT content_sha256,segment_index,dimension,vector "
+                                "FROM coding_embedding_cache WHERE fingerprint=? AND content_sha256 IN ("
+                                + ",".join("?" for _ in batch) + ") ORDER BY content_sha256,segment_index",
+                                (self.semantic.fingerprint, *batch))
+                            for row in rows:
+                                if row["dimension"] != self.semantic.dimension:
+                                    raise EmbeddingError("Cached Coding embedding dimension mismatch")
+                                cached.setdefault(row["content_sha256"], []).append(
+                                    (row["segment_index"], row["vector"]))
+                    finally:
+                        connection.close()
+                    normalized_cache = {}
+                    for key, values in cached.items():
+                        values.sort()
+                        if [index for index, _ in values] != list(range(len(values))):
+                            raise EmbeddingError("Cached Coding embedding segments are incomplete")
+                        normalized_cache[key] = [blob for _, blob in values]
+                    missing_order = []
+                    for key, text in zip(cache_hashes, embedding_texts):
+                        if key not in normalized_cache and key not in cache_misses:
+                            cache_misses[key] = text
+                            missing_order.append(key)
+                    if missing_order:
+                        embedded = self.semantic.embed_documents([cache_misses[key] for key in missing_order])
+                        if len(embedded) != len(missing_order) or any(not row for row in embedded):
+                            raise EmbeddingError("Embedding backend returned incomplete document vectors")
+                        for key, vectors in zip(missing_order, embedded):
+                            normalized_cache[key] = [encode_vector(normalize_vector(vector, self.semantic.dimension))
+                                                     for vector in vectors]
+                    document_vectors = [normalized_cache[key] for key in cache_hashes]
+                else:
+                    embedded = self.semantic.embed_documents(embedding_texts)
+                    if len(embedded) != len(prepared) or any(not row for row in embedded):
+                        raise EmbeddingError("Embedding backend returned incomplete document vectors")
+                    document_vectors = [[encode_vector(normalize_vector(vector, self.semantic.dimension))
+                                         for vector in row] for row in embedded]
             except EmbeddingCapacityError as error:
                 raise PayloadCapacityError(
                     "Input exceeds the declared semantic capacity; Add was not committed") from error
@@ -338,9 +456,19 @@ class MemoryStore:
                 connection.execute("INSERT INTO requests VALUES (?, ?, ?, ?)",
                                    scope + (payload["session_id"], serialized))
                 now = time.time_ns() // 1_000_000
+                if cache_hashes is not None:
+                    unique_rows = {}
+                    for key, vectors in zip(cache_hashes, document_vectors):
+                        unique_rows.setdefault(key, vectors)
+                    connection.executemany(
+                        "INSERT OR IGNORE INTO coding_embedding_cache VALUES (?, ?, ?, ?, ?)",
+                        ((self.semantic.fingerprint, key, segment_index,
+                          self.semantic.dimension, blob)
+                         for key, vectors in unique_rows.items()
+                         for segment_index, blob in enumerate(vectors)))
                 total_length = 0
                 term_counts = Counter()
-                for index, (message, (message_id, frequencies)) in enumerate(
+                for index, (message, (message_id, frequencies, code_features)) in enumerate(
                         zip(payload["messages"], prepared)):
                     doc_length = sum(frequencies.values())
                     total_length += doc_length
@@ -352,11 +480,22 @@ class MemoryStore:
                     """, (message_id, payload["user_id"], payload["session_id"], payload["request_id"],
                           index, message["role"], message["content"], message.get("timestamp"),
                           now, doc_length))
-                    connection.executemany("INSERT INTO postings VALUES (?, ?, ?, ?, ?, ?)",
-                                           ((payload["user_id"], term, message_id, count,
-                                             doc_length, cursor.lastrowid)
-                                            for term, count in frequencies.items()))
+                    if self.profile == "coding":
+                        connection.executemany("INSERT INTO coding_postings VALUES (?, ?, ?)",
+                                               ((term, cursor.lastrowid, count)
+                                                for term, count in frequencies.items()))
+                    else:
+                        connection.executemany("INSERT INTO postings VALUES (?, ?, ?, ?, ?, ?)",
+                                               ((payload["user_id"], term, message_id, count,
+                                                 doc_length, cursor.lastrowid)
+                                                for term, count in frequencies.items()))
                     term_counts.update(frequencies.keys())
+                    if code_features is not None:
+                        connection.execute("INSERT INTO code_documents VALUES (?, ?)",
+                                           (cursor.lastrowid, coding.quality_prior(code_features)))
+                        connection.executemany("INSERT INTO code_features VALUES (?, ?, ?)",
+                                               ((feature, cursor.lastrowid, weight)
+                                                for feature, weight in code_features.weighted.items()))
                     if document_vectors is not None:
                         for segment_index, vector in enumerate(document_vectors[index]):
                             connection.execute("INSERT INTO vectors VALUES (?, ?, ?, ?, ?, ?)",
@@ -425,20 +564,74 @@ class MemoryStore:
         parameters = [value for term in ranked_terms for value in term]
         values = ",".join("(?,?,?)" for _ in ranked_terms)
         average_length = max(statistics["total_length"] / count, 1.0)
-        rows = connection.execute("""
-            WITH query_terms(term, weight, inverse_frequency) AS (VALUES """ + values + """)
-            SELECT p.message_id, SUM(q.weight*q.inverse_frequency*p.frequency*2.2 /
-                (p.frequency+1.2*(0.25+0.75*p.doc_length/?))) AS score,
-                MIN(p.sequence) AS sequence
-            FROM query_terms q JOIN postings p ON p.term=q.term AND p.user_id=?
-            GROUP BY p.message_id ORDER BY score DESC, sequence ASC LIMIT ?
-        """, (*parameters, average_length, payload["user_id"], limit))
+        if self.profile == "coding":
+            rows = connection.execute("""
+                WITH query_terms(term, weight, inverse_frequency) AS (VALUES """ + values + """)
+                SELECT m.id AS message_id,
+                    SUM(q.weight*q.inverse_frequency*p.frequency*2.2 /
+                    (p.frequency+1.2*(0.25+0.75*m.doc_length/?))) AS score,
+                    MIN(m.sequence) AS sequence
+                FROM query_terms q JOIN coding_postings p ON p.term=q.term
+                JOIN messages m ON m.sequence=p.message_sequence AND m.user_id=?
+                GROUP BY m.id ORDER BY score DESC, sequence ASC LIMIT ?
+            """, (*parameters, average_length, payload["user_id"], limit))
+        else:
+            rows = connection.execute("""
+                WITH query_terms(term, weight, inverse_frequency) AS (VALUES """ + values + """)
+                SELECT p.message_id, SUM(q.weight*q.inverse_frequency*p.frequency*2.2 /
+                    (p.frequency+1.2*(0.25+0.75*p.doc_length/?))) AS score,
+                    MIN(p.sequence) AS sequence
+                FROM query_terms q JOIN postings p ON p.term=q.term AND p.user_id=?
+                GROUP BY p.message_id ORDER BY score DESC, sequence ASC LIMIT ?
+            """, (*parameters, average_length, payload["user_id"], limit))
         return [(row["message_id"], row["score"]) for row in rows]
 
-    def _fuse(self, rankings):
+    def _coding_candidates(self, connection, payload, limit):
+        if self.profile != "coding" or self.coding_weight <= 0:
+            return []
+        query = "\n".join([payload["query"], *payload.get("options", [])])
+        profile = coding.query_profile(query)
+        features = profile.weighted
+        if not features:
+            return []
+        selected = sorted(features.items(), key=lambda item: (-item[1], item[0]))[:96]
+        names = [name for name, _ in selected]
+        counts = dict(connection.execute(
+            "SELECT f.feature,COUNT(*) FROM code_features f "
+            "JOIN messages m ON m.sequence=f.message_sequence "
+            "WHERE m.user_id=? AND f.feature IN ("
+            + ",".join("?" for _ in names) + ") GROUP BY f.feature",
+            (payload["user_id"], *names)))
+        statistics = connection.execute("SELECT message_count FROM user_statistics WHERE user_id=?",
+                                        (payload["user_id"],)).fetchone()
+        if statistics is None:
+            return []
+        document_count = statistics["message_count"]
+        ranked = [(name, weight, math.log(1 + (document_count - counts.get(name, 0) + .5)
+                                              / (counts.get(name, 0) + .5)))
+                  for name, weight in selected if counts.get(name, 0)]
+        if not ranked:
+            return []
+        values = ",".join("(?,?,?)" for _ in ranked)
+        parameters = [value for row in ranked for value in row]
+        rows = connection.execute("""
+            WITH query_features(feature,weight,inverse_frequency) AS (VALUES """ + values + """)
+            SELECT m.id AS message_id,
+                SUM(q.weight*q.inverse_frequency*f.weight)+d.quality AS score,
+                MIN(m.sequence) AS sequence
+            FROM query_features q JOIN code_features f ON f.feature=q.feature
+            JOIN messages m ON m.sequence=f.message_sequence AND m.user_id=?
+            JOIN code_documents d ON d.message_sequence=m.sequence
+            GROUP BY m.id ORDER BY score DESC, sequence ASC LIMIT ?
+        """, (*parameters, payload["user_id"], limit))
+        confidence = coding.query_confidence(profile)
+        return ([(row["message_id"], row["score"]) for row in rows], confidence)
+
+    @staticmethod
+    def _fuse(weighted_rankings):
         scores = Counter()
         lexical_ranks = {}
-        for index, (weight, ranking) in enumerate(zip((1.0, self.semantic_weight), rankings)):
+        for index, (weight, ranking) in enumerate(weighted_rankings):
             for rank, (message_id, _) in enumerate(ranking, 1):
                 scores[message_id] += weight / (60 + rank)
                 if index == 0:
@@ -455,7 +648,10 @@ class MemoryStore:
         if self.semantic is not None and self.semantic_weight > 0:
             from semantic import EmbeddingCapacityError, EmbeddingError
             try:
-                query_vector = self.semantic.embed_query("\n".join(query_parts))
+                embedding_query = "\n".join(query_parts)
+                if self.profile == "coding":
+                    embedding_query = coding.semantic_query(embedding_query)
+                query_vector = self.semantic.embed_query(embedding_query)
             except EmbeddingCapacityError as error:
                 raise PayloadCapacityError(
                     "Query exceeds the declared semantic capacity; no successful acknowledgement") from error
@@ -466,7 +662,7 @@ class MemoryStore:
             connection.execute("BEGIN")
             candidate_limit = min(MAX_RETRIEVAL_CANDIDATES, max(128, payload["top_k"] * 4))
             lexical = self._lexical_candidates(connection, payload, candidate_limit)
-            ranking = lexical
+            weighted_rankings = [(1.0, lexical)]
             if query_vector is not None:
                 from semantic import EmbeddingError, rank_vectors
                 rows = connection.execute("""
@@ -478,8 +674,14 @@ class MemoryStore:
                                             candidate_limit)
                 except EmbeddingError as error:
                     raise UnavailableError("Semantic index retrieval failed") from error
-                ranking = self._fuse((lexical, semantic))
-            ids = [message_id for message_id, _ in ranking[:payload["top_k"]]]
+                weighted_rankings.append((self.semantic_weight, semantic))
+            coding_result = self._coding_candidates(connection, payload, candidate_limit)
+            if coding_result:
+                coding_ranking, coding_confidence = coding_result
+                weighted_rankings.append((self.coding_weight * coding_confidence, coding_ranking))
+            ranking = lexical if len(weighted_rankings) == 1 else self._fuse(weighted_rankings)
+            result_limit = min(payload["top_k"], self.coding_result_limit) if self.profile == "coding" else payload["top_k"]
+            ids = [message_id for message_id, _ in ranking[:result_limit]]
             if not ids:
                 return {"data": []}
             rows = connection.execute(
@@ -491,7 +693,7 @@ class MemoryStore:
             emitted_sources = set()
             output = []
             used_characters = 0
-            for message_id, score in ranking[:payload["top_k"]]:
+            for message_id, score in ranking[:result_limit]:
                 document = documents.get(message_id)
                 if document is None or (self.context_grouping == "emitted" and message_id in emitted_sources):
                     continue
@@ -508,7 +710,8 @@ class MemoryStore:
                         pending_sources.add(neighbor["id"])
                 # Never truncate source text. Stop at a whole evidence boundary;
                 # preserve one oversized first item so its evidence is not lost.
-                if output and used_characters + len(content) > MAX_EVIDENCE_CHARACTERS:
+                evidence_limit = self.coding_character_limit if self.profile == "coding" else MAX_EVIDENCE_CHARACTERS
+                if output and used_characters + len(content) > evidence_limit:
                     break
                 output.append({"id": message_id, "content": content, "score": float(score)})
                 used_characters += len(content)
@@ -583,9 +786,12 @@ class MemoryStore:
             connection.close()
 
 
-def make_server(address, store, api_token=None, allow_insecure=False):
+def make_server(address, store, api_token=None, allow_insecure=False,
+                max_body_bytes=MAX_BODY_BYTES):
     if not api_token and not allow_insecure:
         raise ValueError("MEMORY_API_TOKEN is required; use --allow-insecure only for local experiments")
+    if type(max_body_bytes) is not int or not 1024 <= max_body_bytes <= 128 * 1024 * 1024:
+        raise ValueError("max_body_bytes must be from 1 KiB through 128 MiB")
 
     class Handler(BaseHTTPRequestHandler):
         # HTTP/1.0 closes each connection, including failures with unread request bodies.
@@ -643,7 +849,7 @@ def make_server(address, store, api_token=None, allow_insecure=False):
             except ValueError:
                 self._send_json(400, {"error": "Invalid Content-Length"})
                 return
-            if length < 0 or length > MAX_BODY_BYTES:
+            if length < 0 or length > max_body_bytes:
                 self._send_json(413, {"error": "Request body exceeds the size limit"})
                 return
             if self.headers.get("Content-Type", "").split(";")[0].strip().lower() != "application/json":
@@ -698,6 +904,17 @@ def main():
     parser.add_argument("--semantic-weight", type=float, default=1.0,
                         help="Global semantic RRF weight, finite 0 through 4; lexical weight is 1. "
                              "Zero skips semantic Search, while configured Add indexing is preserved")
+    parser.add_argument("--profile", choices=("textual", "coding"),
+                        default=os.environ.get("MEMORY_PROFILE", "textual"),
+                        help="textual preserves the published v1.1 behavior; coding adds deterministic engineering feature retrieval")
+    parser.add_argument("--coding-weight", type=float,
+                        default=float(os.environ.get("MEMORY_CODING_WEIGHT", "1.4")))
+    parser.add_argument("--coding-result-limit", type=int,
+                        default=int(os.environ.get("MEMORY_CODING_RESULT_LIMIT", "8")))
+    parser.add_argument("--coding-character-limit", type=int,
+                        default=int(os.environ.get("MEMORY_CODING_CHARACTER_LIMIT", "120000")))
+    parser.add_argument("--max-body-bytes", type=int, default=MAX_BODY_BYTES,
+                        help="Maximum authenticated JSON body bytes; Textual default remains 8 MiB")
     parser.add_argument("--allow-insecure", action="store_true",
                         help="Disable auth ONLY for a local experiment; never use for a formal submission")
     args = parser.parse_args()
@@ -719,10 +936,14 @@ def main():
     try:
         backend = build_backend()
         store = MemoryStore(args.db, semantic_backend=backend, context_radius=args.context_radius,
-                            semantic_weight=args.semantic_weight, context_grouping=args.context_grouping)
+                            semantic_weight=args.semantic_weight, context_grouping=args.context_grouping,
+                            profile=args.profile, coding_weight=args.coding_weight,
+                            coding_result_limit=args.coding_result_limit,
+                            coding_character_limit=args.coding_character_limit)
     except (EmbeddingConfigError, ValueError) as error:
         parser.error(str(error))
-    server = make_server((args.host, args.port), store, token, args.allow_insecure)
+    server = make_server((args.host, args.port), store, token, args.allow_insecure,
+                         max_body_bytes=args.max_body_bytes)
     logging.info("Memory service listening on %s:%s; semantic indexing %s", args.host,
                  server.server_port, "enabled" if backend is not None else "disabled")
     try:

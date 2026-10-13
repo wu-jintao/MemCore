@@ -265,6 +265,16 @@ class MemoryAPITests(unittest.TestCase):
         with self.assertRaises(ValueError):
             server.make_server(("127.0.0.1", 0), self.store)
 
+    def test_max_body_limit_is_explicit_and_bounded(self):
+        with self.assertRaises(ValueError):
+            server.make_server(("127.0.0.1", 0), self.store, TEST_TOKEN, max_body_bytes=1023)
+        with self.assertRaises(ValueError):
+            server.make_server(("127.0.0.1", 0), self.store, TEST_TOKEN,
+                               max_body_bytes=129 * 1024 * 1024)
+        candidate = server.make_server(("127.0.0.1", 0), self.store, TEST_TOKEN,
+                                       max_body_bytes=64 * 1024 * 1024)
+        candidate.server_close()
+
     def test_authenticated_slow_body_and_timed_out_body_retry(self):
         def send_partial(payload, finish):
             raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")

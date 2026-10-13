@@ -1,0 +1,366 @@
+{
+  "schema": "memcore-coding-public-proxy-summary-v1",
+  "prepared_date": "2026-10-13",
+  "official_cambench_result": false,
+  "private_evaluation_inputs_used": false,
+  "source": "Public SWEContextBench Lite relation proxy",
+  "public_data_manifest_sha256": "0b4036f54283701fe316f3ccd0200ab1b2e1440687acee61222e139907f0db2d",
+  "proxy_shape": {
+    "experiences": 300,
+    "related_tasks": 99,
+    "noise_levels": [
+      4,
+      16,
+      48,
+      96
+    ]
+  },
+  "selected_configuration": {
+    "lexical_weight": 1.0,
+    "coding_weight": 2.0,
+    "semantic_weight": 3.0,
+    "result_limit": 8,
+    "character_limit": 120000,
+    "embedding_model": "text-embedding-v4",
+    "dimension": 2048
+  },
+  "cached_dense_evaluation": {
+    "embedding_cache_plan_sha256": "98de992e39f52392bd8807ac87e75817ef77238264782b60120aa5b94b1118e2",
+    "documents_sha256": "2614129b7684a0cdca8b4abb1259a7a07cc1ba98bc3476d4b127a5cbfc7021d4",
+    "queries_sha256": "97e61267c266c50b0e6f24d7c4af536802892edd905eddd39aebd966d139ef43",
+    "model_calls_during_rank_evaluation": 0,
+    "selected_results": {
+      "4": {
+        "count": 99,
+        "recall1": 0.7878787878787878,
+        "recall3": 0.9494949494949495,
+        "recall8": 1.0,
+        "mrr": 0.8735690235690236,
+        "all_relevant_recall8": 1.0,
+        "mean_returned": 5.01010101010101,
+        "mean_returned_characters": 51775.64646464647,
+        "by_task_type": {
+          "bugfix": {
+            "count": 69,
+            "recall1": 0.7536231884057971,
+            "recall3": 0.927536231884058,
+            "recall8": 1.0,
+            "mrr": 0.8475845410628019
+          },
+          "feature": {
+            "count": 7,
+            "recall1": 0.7142857142857143,
+            "recall3": 1.0,
+            "recall8": 1.0,
+            "mrr": 0.8571428571428571
+          },
+          "other": {
+            "count": 23,
+            "recall1": 0.9130434782608695,
+            "recall3": 1.0,
+            "recall8": 1.0,
+            "mrr": 0.9565217391304348
+          }
+        }
+      },
+      "16": {
+        "count": 99,
+        "recall1": 0.7878787878787878,
+        "recall3": 0.8888888888888888,
+        "recall8": 0.9797979797979798,
+        "mrr": 0.8500000000000001,
+        "all_relevant_recall8": 0.9797979797979798,
+        "mean_returned": 8.0,
+        "mean_returned_characters": 74223.1313131313,
+        "by_task_type": {
+          "bugfix": {
+            "count": 69,
+            "recall1": 0.7536231884057971,
+            "recall3": 0.855072463768116,
+            "recall8": 0.9710144927536232,
+            "mrr": 0.8198067632850242
+          },
+          "feature": {
+            "count": 7,
+            "recall1": 0.7142857142857143,
+            "recall3": 0.8571428571428571,
+            "recall8": 1.0,
+            "mrr": 0.7976190476190476
+          },
+          "other": {
+            "count": 23,
+            "recall1": 0.9130434782608695,
+            "recall3": 1.0,
+            "recall8": 1.0,
+            "mrr": 0.9565217391304348
+          }
+        }
+      },
+      "48": {
+        "count": 99,
+        "recall1": 0.7676767676767676,
+        "recall3": 0.8686868686868687,
+        "recall8": 0.9595959595959596,
+        "mrr": 0.8295574795574795,
+        "all_relevant_recall8": 0.9595959595959596,
+        "mean_returned": 8.0,
+        "mean_returned_characters": 69875.898989899,
+        "by_task_type": {
+          "bugfix": {
+            "count": 69,
+            "recall1": 0.7246376811594203,
+            "recall3": 0.8260869565217391,
+            "recall8": 0.9420289855072463,
+            "mrr": 0.7916839199447896
+          },
+          "feature": {
+            "count": 7,
+            "recall1": 0.7142857142857143,
+            "recall3": 0.8571428571428571,
+            "recall8": 1.0,
+            "mrr": 0.7857142857142856
+          },
+          "other": {
+            "count": 23,
+            "recall1": 0.9130434782608695,
+            "recall3": 1.0,
+            "recall8": 1.0,
+            "mrr": 0.9565217391304348
+          }
+        }
+      },
+      "96": {
+        "count": 99,
+        "recall1": 0.7676767676767676,
+        "recall3": 0.8585858585858586,
+        "recall8": 0.9595959595959596,
+        "mrr": 0.8275372775372775,
+        "all_relevant_recall8": 0.9545454545454546,
+        "mean_returned": 8.0,
+        "mean_returned_characters": 68070.898989899,
+        "by_task_type": {
+          "bugfix": {
+            "count": 69,
+            "recall1": 0.7391304347826086,
+            "recall3": 0.8260869565217391,
+            "recall8": 0.9420289855072463,
+            "mrr": 0.7996549344375431
+          },
+          "feature": {
+            "count": 7,
+            "recall1": 0.7142857142857143,
+            "recall3": 0.8571428571428571,
+            "recall8": 1.0,
+            "mrr": 0.7857142857142856
+          },
+          "other": {
+            "count": 23,
+            "recall1": 0.8695652173913043,
+            "recall3": 0.9565217391304348,
+            "recall8": 1.0,
+            "mrr": 0.9239130434782609
+          }
+        }
+      }
+    }
+  },
+  "real_service_high_noise": {
+    "noise": 96,
+    "model_calls": 0,
+    "result_limit": 12,
+    "character_limit": 180000,
+    "add_seconds": 59.000007,
+    "search_seconds": 7.202626375000001,
+    "database_bytes": 352636928,
+    "database_counts": {
+      "requests": 99,
+      "messages": 9604,
+      "postings": 0,
+      "vectors": 13592,
+      "code_documents": 9604,
+      "code_features": 1966270
+    },
+    "metrics": {
+      "recall1": 0.7676767676767676,
+      "recall3": 0.8787878787878788,
+      "recall8": 0.9696969696969697,
+      "recall12": 0.9797979797979798,
+      "mrr": 0.8306561283834011,
+      "all_relevant_recall8": 0.9545454545454546,
+      "all_relevant_recall12": 0.9696969696969697,
+      "complete_relevant_tasks_at_12": 95,
+      "mean_returned": 12.0,
+      "mean_returned_characters": 103223.39393939394,
+      "p95_returned_characters": 139349
+    },
+    "by_task_type": {
+      "bugfix": {
+        "count": 69,
+        "recall1": 0.7391304347826086,
+        "recall3": 0.855072463768116,
+        "recall8": 0.9565217391304348,
+        "mrr": 0.806545266327875
+      },
+      "feature": {
+        "count": 7,
+        "recall1": 0.7142857142857143,
+        "recall3": 0.8571428571428571,
+        "recall8": 1.0,
+        "mrr": 0.7857142857142856
+      },
+      "other": {
+        "count": 23,
+        "recall1": 0.8695652173913043,
+        "recall3": 0.9565217391304348,
+        "recall8": 1.0,
+        "mrr": 0.9166666666666666
+      }
+    },
+    "content_addressed_reuse": {
+      "scoped_message_rows": 9604,
+      "unique_document_embedding_inputs": 300,
+      "document_backend_operations": 30,
+      "query_inputs": 99,
+      "query_backend_operations": 99
+    },
+    "output_budget_selection": {
+      "baseline_8": {
+        "result_limit": 8,
+        "character_limit": 120000,
+        "complete_relevant_tasks": 93,
+        "all_relevant_recall": 0.9545454545454546,
+        "mean_returned_characters": 68496.67676767676
+      },
+      "selected_12": {
+        "result_limit": 12,
+        "character_limit": 180000,
+        "complete_relevant_tasks": 95,
+        "all_relevant_recall": 0.9696969696969697,
+        "mean_returned_characters": 103223.39393939394
+      },
+      "larger_limit_decision": "Limits above 12 added many distractors for small additional public-proxy recall; they were not selected."
+    }
+  },
+  "loopback_runtime": {
+    "status": "passed",
+    "model_calls": 0,
+    "non_loopback_calls": 0,
+    "unique_adds": 64,
+    "add_concurrency": 16,
+    "idempotent_retries": 32,
+    "search_calls": 64,
+    "search_concurrency": 16,
+    "restart_signal": "SIGKILL",
+    "restart_result_identical": true,
+    "database": {
+      "quick_check": "ok",
+      "counts": {
+        "requests": 66,
+        "messages": 66,
+        "coding_postings": 3226,
+        "vectors": 66,
+        "code_documents": 66,
+        "code_features": 1652
+      },
+      "fingerprint_groups": [
+        [
+          "synthetic-coding-runtime-v1",
+          2048,
+          66
+        ]
+      ],
+      "request_record_length": [
+        71,
+        71
+      ]
+    }
+  },
+  "limitations": [
+    "Retrieval proxy only; no Coding agent solves or verifier runs.",
+    "Not the private CAMBench dataset or an official AML score.",
+    "Proxy task-type mix does not equal the disclosed CAMBench 99 bug-fix / 51 feature-enhancement distribution."
+  ],
+  "isolated_candidate_validation": {
+    "earlier_core_real_model_load": {
+      "candidate": "v1-20261013-a",
+      "public_route_used": false,
+      "aml_calls": 0,
+      "model": "text-embedding-v4",
+      "dimension": 2048,
+      "add_concurrency": 16,
+      "search_concurrency": 16,
+      "idempotent_retries": 32,
+      "add_p95_seconds": 132.90942426695256,
+      "search_p95_seconds": 10.017182570998557,
+      "retry_p95_seconds": 0.018935760017484426,
+      "database_quick_check": "ok",
+      "scope": "Concurrency and provider stability evidence; performed before final content-addressed reuse and 128 MiB candidate-limit configuration."
+    },
+    "final_core": {
+      "candidate": "v1-20261013-c",
+      "git_commit": "e2ae204f3e411967e561e9df6fbedc93e90f8eb7",
+      "public_route_used": false,
+      "aml_calls": 0,
+      "source_manifest_sha256": "8da27bf0f862a100e776ed96923d7bf0a93210fd85b6be458f405bdcc889978f",
+      "accepted_body_bytes": 9437436,
+      "accepted_status": 200,
+      "declared_over_limit_bytes": 67108865,
+      "over_limit_status": 413,
+      "first_document_embedding_seconds": 0.4537046240293421,
+      "reused_document_embedding_seconds": 0.008021830988582224,
+      "cache_rows_after_first": 2,
+      "cache_rows_after_second": 2,
+      "scoped_vectors_after_first": 2,
+      "scoped_vectors_after_second": 3,
+      "first_user_results": 1,
+      "second_user_results": 1,
+      "unrelated_user_results": 0,
+      "database_quick_check": "ok"
+    },
+    "final_capacity_configuration": {
+      "candidate": "v1-20261013-e",
+      "configuration_commit": "66df2aa50747938619492a71bd363d8193143e7e",
+      "core_manifest_sha256": "8da27bf0f862a100e776ed96923d7bf0a93210fd85b6be458f405bdcc889978f",
+      "public_route_used": false,
+      "aml_calls": 0,
+      "max_body_bytes": 134217728,
+      "accepted_body_bytes": 68157747,
+      "accepted_status": 200,
+      "accepted_seconds": 39.79404233198147,
+      "declared_over_limit_bytes": 134217729,
+      "over_limit_status": 413,
+      "database_quick_check": "ok",
+      "data_disk_available_bytes_after_check": 76838584320,
+      "raw_bodies_retained": false
+    },
+    "clean_final_baseline": {
+      "candidate": "v1-20261013-f",
+      "source_commit": "a1078996f86d38623bec4c1fdb035e8041ef3018",
+      "core_manifest_sha256": "8da27bf0f862a100e776ed96923d7bf0a93210fd85b6be458f405bdcc889978f",
+      "public_route_used": false,
+      "aml_calls": 0,
+      "initial_database_counts": {
+        "requests": 0,
+        "messages": 0,
+        "vectors": 0,
+        "coding_embedding_cache": 0
+      },
+      "controlled_process_failure": true,
+      "pid_changed_after_recovery": true,
+      "systemd_restarts_after_check": 1,
+      "recovery_delay_seconds": 5,
+      "database_counts_after_recovery": {
+        "requests": 0,
+        "messages": 0,
+        "vectors": 0,
+        "coding_embedding_cache": 0
+      },
+      "database_quick_check": "ok",
+      "final_result_limit": 12,
+      "final_character_limit": 180000,
+      "final_max_body_bytes": 134217728,
+      "textual_service_modified": false,
+      "public_route_modified": false
+    }
+  }
+}

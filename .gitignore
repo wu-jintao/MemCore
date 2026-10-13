@@ -20,3 +20,5 @@ venv/
 competition/results/
 model-cache/
 models/
+competition/coding-public-data/
+coding-proxy-*/

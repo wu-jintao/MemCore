@@ -1,9 +1,11 @@
 # MemCore v1.1
 
-This tree includes a [query-capacity and transport recovery amendment](CAPACITY_RECOVERY.md)
-dated October 10, 2026. Organizer review is pending; the amendment does not
-establish an approved scored version or official result. The October 8 source
-release description below is historical provenance.
+This repository contains two explicitly isolated profiles. The default Textual
+v1.1 profile retains its October 10, 2026 recovery and review history. The
+optional Coding v1 profile uses a fresh database and independent deployment;
+its source, fixed configuration, public-only proxy evidence, and validation are
+recorded in the `CODING_*` files. Neither profile's public source claims an
+official AML score.
 
 MemCore is a source-preserving Add/Search memory service. It stores original
 messages and synchronous SQLite indexes, then returns attributable evidence to
@@ -82,3 +84,15 @@ addresses and Git metadata are excluded from the source package.
 [VALIDATION.md](VALIDATION.md) records the local source checks completed before
 this release. See [METHOD.md](METHOD.md),
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and the MIT [LICENSE](LICENSE).
+
+## Coding Memory profile
+
+The isolated Coding v1 profile is documented in
+[CODING_METHOD.md](CODING_METHOD.md),
+[CODING_CONFIGURATION.md](CODING_CONFIGURATION.md), and
+[CODING_VALIDATION.md](CODING_VALIDATION.md). It is enabled only with
+`MEMORY_PROFILE=coding`, requires a fresh database, and adds deterministic code
+features plus compact engineering representations for BM25 and
+`text-embedding-v4`. Add and Search call no generative language model. The final
+public-only proxy uses a 12-result / 180,000-character evidence budget; default
+Textual behavior remains unchanged.

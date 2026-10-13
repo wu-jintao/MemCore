@@ -1,0 +1,27 @@
+{
+  "schema": "memcore-coding-public-data-manifest-v1",
+  "source": "jiayuanz3/SWEContextBench",
+  "purpose": "Public proxy retrieval validation only; not the scored CAMBench Coding dataset",
+  "license_declared_by_dataset_card": "MIT",
+  "huggingface_dataset_revision": "12c65bd15e2559bc808065565e941ee7bbbd008f",
+  "upstream_repository_revision_observed": "12ad6ab14e18e9378e1e293c9edbc3f7ce43d27b",
+  "files": {
+    "SWEContextBench_Lite_Experience.parquet": {
+      "url": "https://huggingface.co/datasets/jiayuanz3/SWEContextBench/resolve/main/data/SWEContextBench_Lite_Experience.parquet",
+      "bytes": 1119540,
+      "sha256": "7a21f37b8bc179c7db5beeb14e88ac538ba283455c776e6b2535bbfb6e3551b4"
+    },
+    "SWEContextBench_Related_Lite.parquet": {
+      "url": "https://huggingface.co/datasets/jiayuanz3/SWEContextBench/resolve/main/data/SWEContextBench_Related_Lite.parquet",
+      "bytes": 538469,
+      "sha256": "1930b392f7beb17a0d87c2e79d1eb889af2c5996b23a003386651ba64a68b8f3"
+    },
+    "SWEContextBench_Relationship.parquet": {
+      "url": "https://huggingface.co/datasets/jiayuanz3/SWEContextBench/resolve/main/data/SWEContextBench_Relationship.parquet",
+      "bytes": 24334,
+      "sha256": "f59b1a0fd021c6608bd185f15113cbbd26f804c20494da6d4827adb9ea70edb5"
+    }
+  },
+  "bundled": false,
+  "private_evaluation_data_used": false
+}
